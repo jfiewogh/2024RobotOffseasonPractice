@@ -8,8 +8,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-import frc.robot.subsystems.SwerveModule;
-
 public class DriveSubsystem extends SubsystemBase {
     private final double width = Units.inchesToMeters(19.75);
     private final double length = Units.inchesToMeters(19.75);
@@ -21,41 +19,35 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private final SwerveModule frontLeftMotor = new SwerveModule(1, 2, frontLeftLocation);
-    private final SwerveModule frontRightMotor = new SwerveModule(3, 4, frontRightLocation);
-    private final SwerveModule backLeftMotor = new SwerveModule(5, 6, backLeftLocation);
-    private final SwerveModule backRightMotor = new SwerveModule(7, 8, backRightLocation);
+    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation);
+    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation);
+    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation);
+    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation);
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
-
-        double frontLeftSpeed = leftSpeed; 
-        double backLeftSpeed = leftSpeed;
-        double frontRightSpeed = rightSpeed;
-        double backRightSpeed = rightSpeed;
-
-        frontLeftMotor.getDriveMotor().set(frontLeftSpeed);
-        frontRightMotor.getDriveMotor().set(frontRightSpeed);
-        backLeftMotor.getDriveMotor().set(backLeftSpeed);
-        backRightMotor.getDriveMotor().set(backRightSpeed);
+        frontLeftSwerveModule.getDriveMotor().set(leftSpeed);
+        frontRightSwerveModule.getDriveMotor().set(leftSpeed);
+        backLeftSwerveModule.getDriveMotor().set(rightSpeed);
+        backRightSwerveModule.getDriveMotor().set(rightSpeed);
     }
 
     public void swerveDrive(double ySpeed, double xSpeed, double turnSpeed) {
         ChassisSpeeds speeds = new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
-        frontLeftMotor.setState(moduleStates[0]);
-        frontRightMotor.setState(moduleStates[1]);
-        backLeftMotor.setState(moduleStates[2]);
-        backRightMotor.setState(moduleStates[3]);
+        frontLeftSwerveModule.setState(moduleStates[0]);
+        frontRightSwerveModule.setState(moduleStates[1]);
+        backLeftSwerveModule.setState(moduleStates[2]);
+        backRightSwerveModule.setState(moduleStates[3]);
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
         double driveAngleRadians = SwerveModule.getAngleRadians(ySpeed, xSpeed);
         double driveSpeed = Math.hypot(xSpeed, ySpeed);
-        frontLeftMotor.setState(driveSpeed, driveAngleRadians, turnSpeed);
-        frontRightMotor.setState(driveSpeed, driveAngleRadians, turnSpeed);
-        backLeftMotor.setState(driveSpeed, driveAngleRadians, turnSpeed);
-        backRightMotor.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        frontLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        frontRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        backLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        backRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
     }
 }

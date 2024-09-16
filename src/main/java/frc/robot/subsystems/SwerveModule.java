@@ -11,9 +11,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 
 public class SwerveModule {
-    // Constants
+    // CONSTANTS
     private static final double TAU = Math.PI * 2;
     private static final double MAX_SPEED_METERS_PER_SECOND = Units.feetToMeters(14);
+    // PID Values
+    private static final double P = 0.01;
+    private static final double D = 0.2;
+    // Gear Ratio
+    private static final double TURN_MOTOR_GEAR_RATIO = (14.0 / 50.0) * (10.0 / 60.0);
 
     // Motors and Encoders
     private final CANSparkMax driveMotor;
@@ -21,13 +26,6 @@ public class SwerveModule {
     private final RelativeEncoder turnMotorEncoder;
 
     private final double turningAngleRadians;
-
-    // PID Values
-    private static final double kP = 0.01;
-    private static final double kD = 0.2;
-
-    // Gear Ratio
-    private final double turnMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
 
     public SwerveModule(int driveMotorDeviceId, int turnMotorDeviceId, Translation2d location) {
         driveMotor = new CANSparkMax(driveMotorDeviceId, MotorType.kBrushless);
@@ -62,16 +60,16 @@ public class SwerveModule {
         driveMotor.set(desiredSpeed);
     }
 
-    public double[] getDesiredState(double driveAngleRadians, double turnAngleRadians, double driveSpeed, double turnSpeed) {
+    private double[] getDesiredState(double driveAngleRadians, double turnAngleRadians, double driveSpeed, double turnSpeed) {
         // Get x and y components of speeds
         double driveSpeedY = driveSpeed * Math.sin(driveAngleRadians);
         double driveSpeedX = driveSpeed * Math.cos(driveAngleRadians);
         double turnSpeedY = turnSpeed * Math.sin(turnAngleRadians);
         double turnSpeedX = turnSpeed * Math.cos(turnAngleRadians);
-        // Get total speeds in x and y
+        // Get total speeds in x and y directions
         double speedY = driveSpeedY + turnSpeedY;
         double speedX = driveSpeedX + turnSpeedX;
-        // Determine angle and total speed and return
+        // Determine and return angle and total speed
         double desiredAngle = Math.atan2(speedY, speedX);
         double speed = Math.hypot(speedX, speedY);
         return new double[] {desiredAngle, speed > 1 ? 1 : speed}; // The speed cannot be over 1
@@ -88,7 +86,7 @@ public class SwerveModule {
         double dt = Timer.getFPGATimestamp() - lastTimestamp;
         double errorRate = (errorRadians - lastError) / dt;
 
-        double speed = (errorRadians / turnMotorGearRatio / Math.PI * kP) + (errorRate * kD);
+        double speed = (errorRadians / Math.PI / TURN_MOTOR_GEAR_RATIO * P) + (errorRate * D);
         speed = speed > 1 ? 1 : speed; // speed maximum is 1
         System.out.println(speed);
 
