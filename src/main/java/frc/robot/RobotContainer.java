@@ -27,6 +27,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private static final int JOYSTICK_PORT = 0;
   private final Joystick joystick = new Joystick(JOYSTICK_PORT);
+  private final JoystickButton button1 = new JoystickButton(joystick, Button.LB.getPort());
 
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final DriveCommand driveCommand = new DriveCommand(driveSubsystem, joystick);
@@ -40,6 +41,7 @@ public class RobotContainer {
   private void configureBindings() {
     // Default command means it will constantly run 
     driveSubsystem.setDefaultCommand(driveCommand);
+    button1.whileTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
   }
 }
 

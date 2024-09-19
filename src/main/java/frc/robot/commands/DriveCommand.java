@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveCommand extends Command {
     private enum DriveType {
-        ARCADE, SWERVE, NONE;
+        ARCADE, SWERVE;
     }
 
     private final DriveSubsystem driveSubsystem;
@@ -28,7 +28,6 @@ public class DriveCommand extends Command {
         else if (driveType == DriveType.SWERVE) {
             driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
         }
-        driveSubsystem.getEncoderValues();
     } 
 
     public void end() {
