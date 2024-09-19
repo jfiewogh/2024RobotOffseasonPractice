@@ -8,15 +8,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
 
 public class SwerveModule {
     // CONSTANTS
-    private static final double TAU = Math.PI * 2;
+    private static final double TAU = Math.PI * 2; // full circle
     private static final double MAX_SPEED_METERS_PER_SECOND = Units.feetToMeters(14);
     // PID Values
-    private static final double P = 0.01;
-    private static final double D = 0.2;
+    private static final double P = 0.05;
     // Gear Ratio
     private static final double TURN_MOTOR_GEAR_RATIO = (14.0 / 50.0) * (10.0 / 60.0);
 
@@ -27,15 +25,16 @@ public class SwerveModule {
 
     private final double turningAngleRadians;
 
-    public SwerveModule(int driveMotorDeviceId, int turnMotorDeviceId, Translation2d location) {
+    public SwerveModule(int driveMotorDeviceId, int turnMotorDeviceId, Translation2d location, double encoderOffset) {
         driveMotor = new CANSparkMax(driveMotorDeviceId, MotorType.kBrushless);
         turnMotor = new CANSparkMax(turnMotorDeviceId, MotorType.kBrushless);
         turningAngleRadians = getTurningAngleRadians(location);
         turnMotorEncoder = turnMotor.getEncoder();
+        turnMotorEncoder.setPosition(encoderOffset);
     }
 
     private double getTurningAngleRadians(Translation2d location) {
-        double turningAngleRadians = (Math.PI / 2) - getAngleRadians(location.getY(), location.getX());
+        double turningAngleRadians = (Math.PI / 2) - getAngleRadiansFromComponents(location.getY(), location.getX());
         return normalizeAngleRadians(turningAngleRadians);
     }
 
@@ -75,29 +74,41 @@ public class SwerveModule {
         return new double[] {desiredAngle, speed > 1 ? 1 : speed}; // The speed cannot be over 1
     }
 
-    private double lastTimestamp = 0;
-    private double lastError = 0;
+    public void setAngle(Rotation2d desiredAngle) {
+        // almost works
+        // errors backwards
 
-    private void setAngle(Rotation2d desiredAngle) {
-        double currentAngleRadians = turnMotorEncoder.getPosition() * (2 * Math.PI);
-        double errorRadians = desiredAngle.getRadians() - currentAngleRadians; // optimize this not using swervemodulestate
-        System.out.println(currentAngleRadians + " " + desiredAngle.getRadians() + " " + errorRadians);
+        System.out.println("ID: " + this.turnMotor.getDeviceId());
 
-        double dt = Timer.getFPGATimestamp() - lastTimestamp;
-        double errorRate = (errorRadians - lastError) / dt;
+        System.out.println(turnMotorEncoder.getPosition() + " - " + turnMotorEncoder.getPosition() * TAU);
 
-        double speed = (errorRadians / Math.PI / TURN_MOTOR_GEAR_RATIO * P) + (errorRate * D);
-        speed = speed > 1 ? 1 : speed; // speed maximum is 1
+        double currentWheelAngleRadians = normalizeAngleRadians(turnMotorEncoder.getPosition() * TAU * TURN_MOTOR_GEAR_RATIO);
+        double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
+
+        System.out.println(currentWheelAngleRadians + " " + desiredWheelAngleRadians);
+
+        double currentAngleRadians = currentWheelAngleRadians / TURN_MOTOR_GEAR_RATIO;
+        double desiredAngleRadians = desiredWheelAngleRadians / TURN_MOTOR_GEAR_RATIO;
+
+        // optimize this not using swervemodulestate (go shortest direction)
+        double errorRadians = desiredAngleRadians - currentAngleRadians;
+        
+        System.out.println(currentAngleRadians + " " + desiredAngleRadians + " " + errorRadians);
+
+        double speed = errorRadians / Math.PI * P;
+        if (speed > 1) {
+            speed = 1;
+        } else if (speed < -1) {
+            speed = -1;
+        }
         System.out.println(speed);
 
         turnMotor.set(speed);
-
-        lastTimestamp = Timer.getFPGATimestamp();
     }
 
     // STATIC METHODS
 
-    public static double getAngleRadians(double y, double x) {
+    public static double getAngleRadiansFromComponents(double y, double x) {
         return normalizeAngleRadians(Math.atan2(y, x));
     }
 
@@ -106,6 +117,15 @@ public class SwerveModule {
             angleRadians += angleRadians < 0 ? TAU : -TAU;
         }
         return angleRadians;
+    }
+
+    //
+    public double getEncoderValue() {
+        return turnMotorEncoder.getPosition();
+    }
+
+    public void resetEncoder() { // unused
+        turnMotorEncoder.setPosition(0);
     }
 }
 

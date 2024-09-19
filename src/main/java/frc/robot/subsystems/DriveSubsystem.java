@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -19,10 +20,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation);
-    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation);
-    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation);
-    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation);
+    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, -1.7441);
+    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, 2.0678);
+    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, -2.0801 + Math.PI);
+    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, 2.8041);
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
@@ -43,11 +44,18 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
-        double driveAngleRadians = SwerveModule.getAngleRadians(ySpeed, xSpeed);
+        double driveAngleRadians = SwerveModule.getAngleRadiansFromComponents(ySpeed, xSpeed);
         double driveSpeed = Math.hypot(xSpeed, ySpeed);
         frontLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
         frontRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
         backLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
         backRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+    }
+
+    public void getEncoderValues() {
+        System.out.println("FL: " + frontLeftSwerveModule.getEncoderValue());
+        System.out.println("FR: " + frontRightSwerveModule.getEncoderValue());
+        System.out.println("BL: " + backLeftSwerveModule.getEncoderValue());
+        System.out.println("BR: " + backRightSwerveModule.getEncoderValue());
     }
 }
