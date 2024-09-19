@@ -20,10 +20,15 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, -1.7441);
-    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, 2.0678);
-    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, -2.0801 + Math.PI);
-    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, 2.8041);
+    private final double frontLeftOffset = -1.7441;
+    private final double frontRightOffset = 2.0678;
+    private final double backLeftOffset = -2.0801 + Math.PI;
+    private final double backRightOffset = 2.8041;
+
+    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, frontLeftOffset);
+    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, frontRightOffset);
+    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftOffset);
+    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightOffset);
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;

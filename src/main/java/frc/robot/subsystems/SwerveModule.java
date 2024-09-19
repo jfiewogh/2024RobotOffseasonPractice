@@ -30,7 +30,7 @@ public class SwerveModule {
         angleMotor = new CANSparkMax(angleMotorDeviceId, MotorType.kBrushless);
         turnAngleRadians = getTurningAngleRadians(location);
         angleMotorEncoder = angleMotor.getEncoder();
-        angleMotorEncoder.setPosition(encoderOffset);
+        angleMotorEncoder.setPosition(-encoderOffset);
     }
 
     private double getTurningAngleRadians(Translation2d location) {
@@ -101,6 +101,7 @@ public class SwerveModule {
         double desiredAngleRadians = desiredWheelAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
 
         // optimize this not using swervemodulestate (go shortest direction)
+        // ex. 90 degrees counterclockwise instead of 270 degrees clockwise
         double errorRadians = desiredAngleRadians - currentAngleRadians;
         
         System.out.println(currentAngleRadians + " " + desiredAngleRadians + " " + errorRadians);
