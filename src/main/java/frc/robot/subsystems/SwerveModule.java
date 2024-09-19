@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
@@ -8,6 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+
+import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
 
 public class SwerveModule {
     // CONSTANTS
@@ -22,15 +25,19 @@ public class SwerveModule {
     private final CANSparkMax driveMotor;
     private final CANSparkMax angleMotor;
     private final RelativeEncoder angleMotorEncoder;
+    private final CANcoder absoluteEncoder;
 
     private final double turnAngleRadians;
 
-    public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, double encoderOffset) {
+    public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, EncoderConfig config) {
         driveMotor = new CANSparkMax(driveMotorDeviceId, MotorType.kBrushless);
         angleMotor = new CANSparkMax(angleMotorDeviceId, MotorType.kBrushless);
         turnAngleRadians = getTurningAngleRadians(location);
         angleMotorEncoder = angleMotor.getEncoder();
-        angleMotorEncoder.setPosition(-encoderOffset);
+
+        // Absolute Encoder
+        absoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
+        angleMotorEncoder.setPosition(absoluteEncoder.getAbsolutePosition().getValueAsDouble());
     }
 
     private double getTurningAngleRadians(Translation2d location) {
@@ -74,41 +81,28 @@ public class SwerveModule {
         return new double[] {desiredAngle, speed > 1 ? 1 : speed}; // The speed cannot be over 1
     }
 
-    private double getAngleMotorSpeed(double errorRadians) {
-        double unnormalizedSpeed = errorRadians / Math.PI * P;
-        if (unnormalizedSpeed > 1) {
+    private double convertRadiansToSpeed(double errorRadians) {
+        double speed = errorRadians / Math.PI * P;
+        if (speed > 1) {
             return 1;
-        } else if (unnormalizedSpeed < -1) {
+        } else if (speed < -1) {
             return -1;
         }
-        return unnormalizedSpeed;
+        return speed;
     }
 
     public void setAngle(Rotation2d desiredAngle) {
-        // almost works
-        // errors backwards
-
-        System.out.println("ID: " + angleMotor.getDeviceId());
-
-        System.out.println(angleMotorEncoder.getPosition() + " - " + angleMotorEncoder.getPosition() * TAU);
-
         double currentWheelAngleRadians = normalizeAngleRadians(angleMotorEncoder.getPosition() * TAU * ANGLE_MOTOR_GEAR_RATIO);
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
-
-        System.out.println(currentWheelAngleRadians + " " + desiredWheelAngleRadians);
-
-        double currentAngleRadians = currentWheelAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
-        double desiredAngleRadians = desiredWheelAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
-
-        // optimize this not using swervemodulestate (go shortest direction)
-        // ex. 90 degrees counterclockwise instead of 270 degrees clockwise
-        double errorRadians = desiredAngleRadians - currentAngleRadians;
-        
-        System.out.println(currentAngleRadians + " " + desiredAngleRadians + " " + errorRadians);
-
-        double speed = getAngleMotorSpeed(errorRadians);
-        System.out.println(speed);
-
+        double wheelErrorAngleRadians = normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians);
+        // Optimizes the angle, goes shortest direction
+        if (wheelErrorAngleRadians > Math.PI) {
+            wheelErrorAngleRadians = -(TAU - wheelErrorAngleRadians);
+        }
+        // Convert wheel radians to motor radians
+        double motorErrorRadians = wheelErrorAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
+        // Set speed
+        double speed = convertRadiansToSpeed(motorErrorRadians);
         angleMotor.set(speed);
     }
 

@@ -1,13 +1,13 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
 
 public class DriveSubsystem extends SubsystemBase {
     private final double width = Units.inchesToMeters(19.75);
@@ -20,17 +20,18 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private final double frontLeftOffset = -1.7441;
-    private final double frontRightOffset = 2.0678;
-    private final double backLeftOffset = -2.0801 + Math.PI;
-    private final double backRightOffset = 2.8041;
+    private final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
+    private final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
+    private final EncoderConfig backLeftConfig = EncoderConfig.BACK_LEFT;
+    private final EncoderConfig backRightConfig = EncoderConfig.BACK_RIGHT;
 
-    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, frontLeftOffset);
-    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, frontRightOffset);
-    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftOffset);
-    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightOffset);
+    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, frontLeftConfig);
+    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, frontRightConfig);
+    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
+    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
+        // swerveDrive(0, 0, 0);
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
         frontLeftSwerveModule.getDriveMotor().set(leftSpeed);
