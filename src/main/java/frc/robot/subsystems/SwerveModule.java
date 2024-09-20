@@ -32,12 +32,16 @@ public class SwerveModule {
     public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, EncoderConfig config) {
         driveMotor = new CANSparkMax(driveMotorDeviceId, MotorType.kBrushless);
         angleMotor = new CANSparkMax(angleMotorDeviceId, MotorType.kBrushless);
-        turnAngleRadians = getTurningAngleRadians(location);
-        angleMotorEncoder = angleMotor.getEncoder();
 
-        // Absolute Encoder
+        turnAngleRadians = getTurningAngleRadians(location); // only used for alternative swerve
+
+        // Encoders
+        angleMotorEncoder = angleMotor.getEncoder();
+        angleMotorEncoder.setPositionConversionFactor(TAU); // converts rotations to radians
+
         absoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
-        angleMotorEncoder.setPosition(absoluteEncoder.getAbsolutePosition().getValueAsDouble());
+        angleMotorEncoder.setPosition(Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition().getValueAsDouble()));
+        absoluteEncoder.close();
     }
 
     private double getTurningAngleRadians(Translation2d location) {
@@ -92,7 +96,7 @@ public class SwerveModule {
     }
 
     public void setAngle(Rotation2d desiredAngle) {
-        double currentWheelAngleRadians = normalizeAngleRadians(angleMotorEncoder.getPosition() * TAU * ANGLE_MOTOR_GEAR_RATIO);
+        double currentWheelAngleRadians = normalizeAngleRadians(angleMotorEncoder.getPosition() * ANGLE_MOTOR_GEAR_RATIO);
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
         double wheelErrorAngleRadians = normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians);
         // Optimizes the angle, goes shortest direction
@@ -101,7 +105,7 @@ public class SwerveModule {
         }
         // Convert wheel radians to motor radians
         double motorErrorRadians = wheelErrorAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
-        // Set speed
+        // Convert radians to speed
         double speed = convertRadiansToSpeed(motorErrorRadians);
         angleMotor.set(speed);
     }

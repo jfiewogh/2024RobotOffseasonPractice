@@ -14,8 +14,8 @@ public class DriveSubsystem extends SubsystemBase {
     private final double length = Units.inchesToMeters(19.75);
 
     private final Translation2d frontLeftLocation = new Translation2d(width/2, length/2);
-    private final Translation2d frontRightLocation = new Translation2d(-width/2, length/2);
-    private final Translation2d backLeftLocation = new Translation2d(width/2, -length/2);
+    private final Translation2d frontRightLocation = new Translation2d(width/2, -length/2);
+    private final Translation2d backLeftLocation = new Translation2d(-width/2, length/2);
     private final Translation2d backRightLocation = new Translation2d(-width/2, -length/2);
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
@@ -31,7 +31,6 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
-        // swerveDrive(0, 0, 0);
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
         frontLeftSwerveModule.getDriveMotor().set(leftSpeed);
@@ -63,5 +62,6 @@ public class DriveSubsystem extends SubsystemBase {
         System.out.println("FR: " + frontRightSwerveModule.getEncoderValue());
         System.out.println("BL: " + backLeftSwerveModule.getEncoderValue());
         System.out.println("BR: " + backRightSwerveModule.getEncoderValue());
+        System.out.println();
     }
 }
