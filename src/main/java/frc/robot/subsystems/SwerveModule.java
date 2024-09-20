@@ -57,17 +57,22 @@ public class SwerveModule {
         return angleMotor;
     }
 
+    public void setDriveMotorSpeed(double speed) {
+        driveMotor.set(normalizeSpeed(speed));
+    }
+
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         setAngle(state.angle);
-        driveMotor.set(speedMetersPerSecond / MAX_SPEED_METERS_PER_SECOND);
+        setDriveMotorSpeed(speedMetersPerSecond / MAX_SPEED_METERS_PER_SECOND);
     }
+
     public void setState(double driveSpeed, double driveAngleRadians, double turnSpeed) {
         double[] desiredState = getDesiredState(driveAngleRadians, turnAngleRadians, driveSpeed, turnSpeed);
         double desiredAngleRadians = desiredState[0];
         double desiredSpeed = desiredState[1];
         setAngle(Rotation2d.fromRadians(desiredAngleRadians));
-        driveMotor.set(desiredSpeed);
+        setDriveMotorSpeed(desiredSpeed);
     }
 
     private double[] getDesiredState(double driveAngleRadians, double turnAngleRadians, double driveSpeed, double turnSpeed) {
@@ -81,12 +86,15 @@ public class SwerveModule {
         double speedX = driveSpeedX + turnSpeedX;
         // Determine and return angle and total speed
         double desiredAngle = Math.atan2(speedY, speedX);
-        double speed = Math.hypot(speedX, speedY);
-        return new double[] {desiredAngle, speed > 1 ? 1 : speed}; // The speed cannot be over 1
+        double speed = normalizeSpeed(Math.hypot(speedX, speedY));
+        return new double[] {desiredAngle, speed}; // The speed cannot be over 1
     }
 
     private double convertRadiansToSpeed(double errorRadians) {
-        double speed = errorRadians / Math.PI * P;
+        return normalizeSpeed(errorRadians / Math.PI * P);
+    }
+
+    private double normalizeSpeed(double speed) {
         if (speed > 1) {
             return 1;
         } else if (speed < -1) {

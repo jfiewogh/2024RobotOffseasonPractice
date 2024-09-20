@@ -33,10 +33,10 @@ public class DriveSubsystem extends SubsystemBase {
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
-        frontLeftSwerveModule.getDriveMotor().set(leftSpeed);
-        frontRightSwerveModule.getDriveMotor().set(leftSpeed);
-        backLeftSwerveModule.getDriveMotor().set(rightSpeed);
-        backRightSwerveModule.getDriveMotor().set(rightSpeed);
+        frontLeftSwerveModule.setDriveMotorSpeed(leftSpeed);
+        frontRightSwerveModule.setDriveMotorSpeed(leftSpeed);
+        backLeftSwerveModule.setDriveMotorSpeed(rightSpeed);
+        backRightSwerveModule.setDriveMotorSpeed(rightSpeed);
     }
 
     public void swerveDrive(double ySpeed, double xSpeed, double turnSpeed) {
