@@ -30,7 +30,8 @@ public class DriveCommand extends Command {
             driveSubsystem.arcadeDrive(getLeftJoystickY(), getRightJoystickX());
         } 
         else if (driveType == DriveType.SWERVE) {
-            driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
+            driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX() * 0.5);
+            // driveSubsystem.swerveDriveAlternative(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
         }
     } 
 
