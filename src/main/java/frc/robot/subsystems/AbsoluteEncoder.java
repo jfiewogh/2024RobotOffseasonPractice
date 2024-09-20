@@ -53,6 +53,8 @@ public class AbsoluteEncoder {
         // FRONT_RIGHT(24, 0.11),
         // BACK_LEFT(25, 0.3),
         // BACK_RIGHT(26, 0.25);
+
+        // Modify these
         FRONT_LEFT(23, -8.379),
         FRONT_RIGHT(24, 4.319),
         BACK_LEFT(25, 12.496),

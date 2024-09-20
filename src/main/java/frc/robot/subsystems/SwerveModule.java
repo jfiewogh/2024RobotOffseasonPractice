@@ -35,7 +35,6 @@ public class SwerveModule {
 
         turnAngleRadians = getTurningAngleRadians(location); // only used for alternative swerve
 
-        // Encoders
         angleMotorEncoder = angleMotor.getEncoder();
         angleMotorEncoder.setPositionConversionFactor(TAU); // converts rotations to radians
 
@@ -47,14 +46,6 @@ public class SwerveModule {
     private double getTurningAngleRadians(Translation2d location) {
         double turningAngleRadians = (Math.PI / 2) - getAngleRadiansFromComponents(location.getY(), location.getX());
         return normalizeAngleRadians(turningAngleRadians);
-    }
-
-    public CANSparkMax getDriveMotor() {
-        return driveMotor;
-    }
-
-    public CANSparkMax getAngleMotor() {
-        return angleMotor;
     }
 
     public void setDriveMotorSpeed(double speed) {
@@ -87,13 +78,14 @@ public class SwerveModule {
         // Determine and return angle and total speed
         double desiredAngle = Math.atan2(speedY, speedX);
         double speed = normalizeSpeed(Math.hypot(speedX, speedY));
-        return new double[] {desiredAngle, speed}; // The speed cannot be over 1
+        return new double[] {desiredAngle, speed};
     }
 
     private double convertRadiansToSpeed(double errorRadians) {
         return normalizeSpeed(errorRadians / Math.PI * P);
     }
 
+    // Limits the speed to -1 to 1
     private double normalizeSpeed(double speed) {
         if (speed > 1) {
             return 1;
@@ -108,6 +100,7 @@ public class SwerveModule {
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
         double wheelErrorAngleRadians = normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians);
         // Optimizes the angle, goes shortest direction
+        // If the error is greater than 180 degrees, go the other direction
         if (wheelErrorAngleRadians > Math.PI) {
             wheelErrorAngleRadians = -(TAU - wheelErrorAngleRadians);
         }
@@ -118,26 +111,22 @@ public class SwerveModule {
         angleMotor.set(speed);
     }
 
+    public double getEncoderValue() {
+        return angleMotorEncoder.getPosition();
+    }
+
     // STATIC METHODS
 
     public static double getAngleRadiansFromComponents(double y, double x) {
         return normalizeAngleRadians(Math.atan2(y, x));
     }
 
+    // Get the coterminal angle between 0 and tau (360 degrees)
     public static double normalizeAngleRadians(double angleRadians) {
         while (angleRadians < 0 || angleRadians > TAU) {
             angleRadians += angleRadians < 0 ? TAU : -TAU;
         }
         return angleRadians;
-    }
-
-    //
-    public double getEncoderValue() {
-        return angleMotorEncoder.getPosition();
-    }
-
-    public void resetEncoder() { // unused
-        angleMotorEncoder.setPosition(0);
     }
 }
 
