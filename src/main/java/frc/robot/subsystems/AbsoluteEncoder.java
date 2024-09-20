@@ -103,9 +103,9 @@ public class AbsoluteEncoder {
 
         // Modify these
         FRONT_LEFT(23, front_left_values[1] - front_left_values[0]),
-        FRONT_RIGHT(24, front_right_values[1] - front_left_values[0]),
-        BACK_LEFT(25, back_left_values[1] - front_left_values[0]),
-        BACK_RIGHT(26, back_right_values[1] - front_left_values[0]);
+        FRONT_RIGHT(24, front_right_values[1] - front_right_values[0]),
+        BACK_LEFT(25, back_left_values[1] - back_left_values[0]),
+        BACK_RIGHT(26, back_right_values[1] - back_right_values[0]);
 
         private int id;
         private double offset;
