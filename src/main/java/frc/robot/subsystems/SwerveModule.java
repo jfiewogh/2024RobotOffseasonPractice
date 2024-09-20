@@ -26,6 +26,7 @@ public class SwerveModule {
     private final CANSparkMax angleMotor;
     private final RelativeEncoder angleMotorEncoder;
     private final CANcoder absoluteEncoder;
+    double offset;
 
     private final double turnAngleRadians;
 
@@ -38,8 +39,9 @@ public class SwerveModule {
         angleMotorEncoder = angleMotor.getEncoder();
         angleMotorEncoder.setPositionConversionFactor(TAU); // converts rotations to radians
 
+        offset = config.getOffset();
         absoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
-        angleMotorEncoder.setPosition(Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition().getValueAsDouble()));
+        // angleMotorEncoder.setPosition(-Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition().getValueAsDouble()));
         absoluteEncoder.close();
     }
 
@@ -96,7 +98,7 @@ public class SwerveModule {
     }
 
     public void setAngle(Rotation2d desiredAngle) {
-        double currentWheelAngleRadians = normalizeAngleRadians(angleMotorEncoder.getPosition() * ANGLE_MOTOR_GEAR_RATIO);
+        double currentWheelAngleRadians = normalizeAngleRadians((-offset + angleMotorEncoder.getPosition()) * ANGLE_MOTOR_GEAR_RATIO);
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
         double wheelErrorAngleRadians = normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians);
         // Optimizes the angle, goes shortest direction
@@ -112,7 +114,7 @@ public class SwerveModule {
     }
 
     public double getEncoderValue() {
-        return angleMotorEncoder.getPosition();
+        return Units.radiansToRotations(angleMotorEncoder.getPosition());
     }
 
     // STATIC METHODS
