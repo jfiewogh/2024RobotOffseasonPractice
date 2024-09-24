@@ -87,6 +87,8 @@ public class AbsoluteEncoder {
         
         canConfig.withMagnetSensor(magConfig);
         encoder.getConfigurator().apply(canConfig);
+
+        System.out.println(encoder.getAbsolutePosition().getValueAsDouble());
         
         return encoder;
     }
