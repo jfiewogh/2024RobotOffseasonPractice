@@ -49,7 +49,7 @@ public class SwerveModule {
         resetEncoders();
     }
 
-    private double getTurningAngleRadians(Translation2d location) {
+    private static double getTurningAngleRadians(Translation2d location) {
         double turningAngleRadians = (Math.PI / 2) - getAngleRadiansFromComponents(location.getY(), location.getX());
         return normalizeAngleRadians(turningAngleRadians);
     }
@@ -72,7 +72,7 @@ public class SwerveModule {
         setDriveMotorSpeed(desiredSpeed);
     }
 
-    private double[] getDesiredState(double driveAngleRadians, double turnAngleRadians, double driveSpeed, double turnSpeed) {
+    private static double[] getDesiredState(double driveAngleRadians, double turnAngleRadians, double driveSpeed, double turnSpeed) {
         // Get x and y components of speeds
         double driveSpeedY = driveSpeed * Math.sin(driveAngleRadians);
         double driveSpeedX = driveSpeed * Math.cos(driveAngleRadians);
@@ -87,12 +87,12 @@ public class SwerveModule {
         return new double[] {desiredAngle, speed};
     }
 
-    private double convertRadiansToSpeed(double errorRadians) {
+    private static double convertRadiansToSpeed(double errorRadians) {
         return normalizeSpeed(errorRadians / Math.PI * P);
     }
 
     // Limits the speed to -1 to 1
-    private double normalizeSpeed(double speed) {
+    private static double normalizeSpeed(double speed) {
         if (speed > 1) {
             return 1;
         } else if (speed < -1) {
@@ -124,8 +124,6 @@ public class SwerveModule {
     public double getEncoderValue() {
         return getAngleMotorRadians() / TAU; // convert radians to rotations
     }
-
-    // STATIC METHODS
 
     public static double getAngleRadiansFromComponents(double y, double x) {
         return normalizeAngleRadians(Math.atan2(y, x));
