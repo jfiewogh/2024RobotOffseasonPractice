@@ -28,7 +28,7 @@ public class SwerveModule {
     private final RelativeEncoder driveMotorRelativeEncoder; // rotations // unused
     private final RelativeEncoder angleMotorRelativeEncoder; // radians
 
-    private final CANcoder angleWheelAbsoluteEncoder; // of the wheel, not the motor
+    private final CANcoder angleWheelAbsoluteEncoder; // rotations of the wheel, not the motor
     private final EncoderConfig encoderConfig;
 
     private final double turnAngleRadians;
@@ -151,16 +151,21 @@ public class SwerveModule {
         return angleRadians;
     }
 
-    // Returns the angle motor absolute encoder value in rotations
+    // Returns the angle motor absolute encoder value in rotations without offset
     public double getAngleWheelAbsoluteEncoderRotations() {
         return -angleWheelAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
-    public double getAngleMotorAbsoluteEncoderRotations() {
-        return -angleWheelAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / ANGLE_MOTOR_GEAR_RATIO;
+    // Returns the angle motor absolute encoder value in rotations with offset
+    public double getAngleWheelAbsoluteEncoderRotationsWithOffset() {
+        return getAngleMotorAbsoluteEncoderRotations() - encoderConfig.getOffset();
     }
-    // Returns the angle motor absolute encoder value in radians with the offset
+    // Returns the angle motor absolute encoder value in radians without offset
+    public double getAngleMotorAbsoluteEncoderRotations() {
+        return getAngleWheelAbsoluteEncoderRotations() / ANGLE_MOTOR_GEAR_RATIO;
+    }
+    // Returns the angle motor absolute encoder value in radians with offset
     public double getAngleMotorAbsoluteEncoderRadiansWithOffset() {
-        return (getAngleMotorAbsoluteEncoderRotations() - encoderConfig.getOffset()) * TAU;
+        return getAngleWheelAbsoluteEncoderRotationsWithOffset() / ANGLE_MOTOR_GEAR_RATIO * TAU;
     }
 
     // Sets the relative encoder values to default
