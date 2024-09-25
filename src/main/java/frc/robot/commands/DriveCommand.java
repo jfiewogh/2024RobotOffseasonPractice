@@ -7,13 +7,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveCommand extends Command {
     private enum DriveType {
-        ARCADE, SWERVE;
+        ARCADE, SWERVE, NONE;
     }
 
     private final DriveSubsystem driveSubsystem;
     private final Joystick joystick;
 
-    private final DriveType driveType = DriveType.ARCADE;
+    private final DriveType driveType = DriveType.SWERVE;
 
     public DriveCommand(DriveSubsystem subsystem, Joystick joystick) {
         driveSubsystem = subsystem;
@@ -27,10 +27,10 @@ public class DriveCommand extends Command {
 
     public void execute() {
         if (driveType == DriveType.ARCADE) {
-            driveSubsystem.arcadeDrive(getLeftJoystickY(), getRightJoystickX());
+            driveSubsystem.arcadeDrive(getLeftJoystickY() * 0.5, getRightJoystickX() * 0.5);
         } 
         else if (driveType == DriveType.SWERVE) {
-            driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX() * 0.5);
+            driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
             // driveSubsystem.swerveDriveAlternative(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
         }
     } 

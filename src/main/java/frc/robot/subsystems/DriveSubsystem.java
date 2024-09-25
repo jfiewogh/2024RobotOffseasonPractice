@@ -58,10 +58,10 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void getEncoderValues() {
-        System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("FR: " + frontRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("BL: " + backLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("FL: " + frontLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("FR: " + frontRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("BL: " + backLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("BR: " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
         System.out.println();
     }
 }
