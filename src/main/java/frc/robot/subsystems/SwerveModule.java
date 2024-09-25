@@ -25,10 +25,10 @@ public class SwerveModule {
     private final CANSparkMax driveMotor;
     private final CANSparkMax angleMotor;
 
-    private final RelativeEncoder driveMotorRelativeEncoder; // rotations
+    private final RelativeEncoder driveMotorRelativeEncoder; // rotations // unused
     private final RelativeEncoder angleMotorRelativeEncoder; // radians
 
-    private final CANcoder absoluteEncoder;
+    private final CANcoder angleMotorAbsoluteEncoder;
     private final EncoderConfig encoderConfig;
 
     private final double turnAngleRadians;
@@ -40,13 +40,16 @@ public class SwerveModule {
         turnAngleRadians = getTurningAngleRadians(location); // only used for alternative swerve
 
         driveMotorRelativeEncoder = driveMotor.getEncoder();
+
         angleMotorRelativeEncoder = angleMotor.getEncoder();
         angleMotorRelativeEncoder.setPositionConversionFactor(TAU); // converts rotations to radians
 
         encoderConfig = config;
-        absoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
+        angleMotorAbsoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
 
+        System.out.println(angleMotorRelativeEncoder.getPosition());
         resetEncoders();
+        System.out.println(angleMotorRelativeEncoder.getPosition());
     }
 
     private static double getTurningAngleRadians(Translation2d location) {
@@ -58,6 +61,10 @@ public class SwerveModule {
         driveMotor.set(normalizeSpeed(speed));
     }
 
+    /**
+     * This sets the SwerveModule to the desired state
+     * @param state the desired speed and angle
+     */
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         setAngle(state.angle);
@@ -87,7 +94,8 @@ public class SwerveModule {
         return new double[] {desiredAngle, speed};
     }
 
-    private static double convertRadiansToSpeed(double errorRadians) {
+    // Converts the error radians to speed
+    private static double convertErrorRadiansToSpeed(double errorRadians) {
         return normalizeSpeed(errorRadians / Math.PI * P);
     }
 
@@ -101,12 +109,12 @@ public class SwerveModule {
         return speed;
     }
 
-    public double getAngleMotorRadians() {
-        return angleMotorRelativeEncoder.getPosition();
-    }
-
+    /**
+     * Spin the motor to the desired wheel angle
+     * @param desiredAngle the desired wheel angle
+     */
     public void setAngle(Rotation2d desiredAngle) {
-        double currentWheelAngleRadians = normalizeAngleRadians(getAngleMotorRadians() * ANGLE_MOTOR_GEAR_RATIO);
+        double currentWheelAngleRadians = normalizeAngleRadians(getAngleMotorRelativeEncoderRadians() * ANGLE_MOTOR_GEAR_RATIO);
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
         double wheelErrorAngleRadians = normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians);
         // Optimizes the angle, goes shortest direction
@@ -117,14 +125,20 @@ public class SwerveModule {
         // Convert wheel radians to motor radians
         double motorErrorRadians = wheelErrorAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
         // Convert radians to speed
-        double speed = convertRadiansToSpeed(motorErrorRadians);
+        double speed = convertErrorRadiansToSpeed(motorErrorRadians);
         angleMotor.set(speed);
     }
 
-    public double getEncoderValue() {
-        return getAngleMotorRadians() / TAU; // convert radians to rotations
+    // Returns the angle motor relative encoder value in radians
+    public double getAngleMotorRelativeEncoderRadians() {
+        return angleMotorRelativeEncoder.getPosition();
+    }
+    // Returns the angle motor relative encoder value in rotations
+    public double getAngleMotorRelativeEncoderRotations() {
+        return getAngleMotorRelativeEncoderRadians() / TAU; // convert radians to rotations
     }
 
+    // Returns the angle in radians formed by the x and y components
     public static double getAngleRadiansFromComponents(double y, double x) {
         return normalizeAngleRadians(Math.atan2(y, x));
     }
@@ -137,13 +151,19 @@ public class SwerveModule {
         return angleRadians;
     }
 
-    public double getAbsoluteEncoderRadians() {
-        return absoluteEncoder.getAbsolutePosition().getValueAsDouble() * TAU - encoderConfig.getOffset();
+    // Returns the angle motor absolute encoder value in rotations
+    public double getAngleMotorAbsoluteEncoderRotations() {
+        return angleMotorAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
+    }
+    // Returns the angle motor absolute encoder value in radians with the offset
+    public double getAngleMotorAbsoluteEncoderRadiansWithOffset() {
+        return (getAngleMotorAbsoluteEncoderRotations() - encoderConfig.getOffset()) * TAU;
     }
 
+    // Sets the relative encoder values to default
     public void resetEncoders() {
         driveMotorRelativeEncoder.setPosition(0);
-        angleMotorRelativeEncoder.setPosition(getAbsoluteEncoderRadians());
+        angleMotorRelativeEncoder.setPosition(getAngleMotorAbsoluteEncoderRadiansWithOffset());
     }
 }
 

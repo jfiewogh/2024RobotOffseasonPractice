@@ -58,10 +58,10 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void getEncoderValues() {
-        System.out.println("FL: " + frontLeftSwerveModule.getEncoderValue());
-        System.out.println("FR: " + frontRightSwerveModule.getEncoderValue());
-        System.out.println("BL: " + backLeftSwerveModule.getEncoderValue());
-        System.out.println("BR: " + backRightSwerveModule.getEncoderValue());
+        System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("FR: " + frontRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("BL: " + backLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
         System.out.println();
     }
 }
