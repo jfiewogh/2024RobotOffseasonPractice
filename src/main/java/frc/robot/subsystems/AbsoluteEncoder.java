@@ -6,7 +6,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 public class AbsoluteEncoder {
 
@@ -20,7 +20,7 @@ working angles
          */
 
         // Modify these values
-        FRONT_LEFT(23, -1.744 + Math.PI * 2),
+        FRONT_LEFT(23, -1.744 + Constants.kTau),
         FRONT_RIGHT(24, 2.0678),
         BACK_LEFT(25, -2.0801 + Math.PI),
         BACK_RIGHT(26, 2.8041);

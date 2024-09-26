@@ -11,17 +11,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
+import frc.robot.Constants;
+import frc.robot.Constants.SwerveConstants;
 
 public class SwerveModule {
-    // CONSTANTS
-    private static final double TAU = Math.PI * 2; // full circle
-    private static final double MAX_SPEED_METERS_PER_SECOND = Units.feetToMeters(14);
-    // PID Values
-    private static final double P = 0.05;
-    // Gear Ratio
-    private static final double ANGLE_MOTOR_GEAR_RATIO = (14.0 / 50.0) * (10.0 / 60.0);
-
-    // Motors and Encoders
     private final CANSparkMax driveMotor;
     private final CANSparkMax angleMotor;
 
@@ -29,7 +22,6 @@ public class SwerveModule {
     private final RelativeEncoder angleMotorRelativeEncoder; // radians
 
     private final CANcoder angleWheelAbsoluteEncoder; // rotations of the wheel, not the motor
-    private final EncoderConfig encoderConfig;
 
     private final double turnAngleRadians;
 
@@ -42,9 +34,8 @@ public class SwerveModule {
         driveMotorRelativeEncoder = driveMotor.getEncoder();
 
         angleMotorRelativeEncoder = angleMotor.getEncoder();
-        angleMotorRelativeEncoder.setPositionConversionFactor(TAU); // converts rotations to radians
+        angleMotorRelativeEncoder.setPositionConversionFactor(Constants.kTau); // converts rotations to radians
 
-        encoderConfig = config;
         angleWheelAbsoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
 
         resetEncoders();
@@ -66,7 +57,7 @@ public class SwerveModule {
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         setAngle(state.angle);
-        setDriveMotorSpeed(speedMetersPerSecond / MAX_SPEED_METERS_PER_SECOND);
+        setDriveMotorSpeed(speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond);
     }
 
     public void setState(double driveSpeed, double driveAngleRadians, double turnSpeed) {
@@ -94,10 +85,14 @@ public class SwerveModule {
 
     // Converts the error radians to speed
     private static double convertErrorRadiansToSpeed(double errorRadians) {
-        return normalizeSpeed(errorRadians / Math.PI * P);
+        return normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kP);
     }
 
-    // Limits the speed to -1 to 1
+    /**
+     * Limits the speed to the range -1 to 1
+     * @param speed the unnormalized speed
+     * @return the normalized speed
+     */
     private static double normalizeSpeed(double speed) {
         if (speed > 1) {
             return 1;
@@ -108,22 +103,41 @@ public class SwerveModule {
     }
 
     /**
+     * Optimizes the error so that the motor moves the shorter direction
+     * If the error is greater than pi, the other direction is shorter, so flip the angle
+     * @param errorRadians the difference from the desired angle and the current angle
+     * @return the optimized error
+     */
+    private static double optimizeErrorRadians(double errorRadians) {
+        return errorRadians > Math.PI ? errorRadians = -(Constants.kTau - errorRadians) : errorRadians;
+    }
+
+    private static double wheelToMotor(double value) {
+        return value / SwerveConstants.kAngleMotorGearRatio;
+    }
+    private static double motorToWheel(double value) {
+        return value * SwerveConstants.kAngleMotorGearRatio;
+    }
+
+    private static double rotationsToRadians(double rotations) {
+        return rotations * Constants.kTau;
+    }
+    private static double radiansToRotations(double radians) {
+        return radians / Constants.kTau;
+    }
+
+    /**
      * Spin the motor to the desired wheel angle
      * @param desiredAngle the desired wheel angle
      */
     public void setAngle(Rotation2d desiredAngle) {
-        double currentWheelAngleRadians = normalizeAngleRadians(getAngleMotorRelativeEncoderRadians() * ANGLE_MOTOR_GEAR_RATIO);
+        double currentWheelAngleRadians = normalizeAngleRadians(motorToWheel(getAngleMotorRelativeEncoderRadians()));
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
-        double wheelErrorAngleRadians = normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians);
-        // Optimizes the angle, goes shortest direction
-        // If the error is greater than 180 degrees, go the other direction
-        if (wheelErrorAngleRadians > Math.PI) {
-            wheelErrorAngleRadians = -(TAU - wheelErrorAngleRadians);
-        }
-        // Convert wheel radians to motor radians
-        double motorErrorRadians = wheelErrorAngleRadians / ANGLE_MOTOR_GEAR_RATIO;
-        // Convert radians to speed
+        double wheelErrorRadians = optimizeErrorRadians(normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians));
+        
+        double motorErrorRadians = wheelToMotor(wheelErrorRadians);
         double speed = convertErrorRadiansToSpeed(motorErrorRadians);
+
         angleMotor.set(speed);
     }
 
@@ -133,7 +147,7 @@ public class SwerveModule {
     }
     // Returns the angle motor relative encoder value in rotations
     public double getAngleMotorRelativeEncoderRotations() {
-        return getAngleMotorRelativeEncoderRadians() / TAU; // convert radians to rotations
+        return radiansToRotations(getAngleMotorRelativeEncoderRadians());
     }
 
     // Returns the angle in radians formed by the x and y components
@@ -143,29 +157,30 @@ public class SwerveModule {
 
     // Get the coterminal angle between 0 and tau (360 degrees)
     public static double normalizeAngleRadians(double angleRadians) {
-        while (angleRadians < 0 || angleRadians > TAU) {
-            angleRadians += angleRadians < 0 ? TAU : -TAU;
+        while (angleRadians < 0 || angleRadians > Constants.kTau) {
+            angleRadians += angleRadians < 0 ? Constants.kTau : -Constants.kTau;
         }
         return angleRadians;
     }
 
-    // Returns the angle motor absolute encoder value in rotations without offset
+    // Returns the angle motor absolute encoder value in rotations
     public double getAngleWheelAbsoluteEncoderRotations() {
         return angleWheelAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
 
-    // Returns the angle motor absolute encoder value in radians without offset
+    // Returns the angle motor absolute encoder value in rotations
     public double getAngleMotorAbsoluteEncoderRotations() {
-        return getAngleWheelAbsoluteEncoderRotations() / ANGLE_MOTOR_GEAR_RATIO;
+        return wheelToMotor(getAngleWheelAbsoluteEncoderRotations());
     }
     // Returns the angle motor absolute encoder value in radians with offset
     public double getAngleMotorAbsoluteEncoderRadians() {
-        return getAngleWheelAbsoluteEncoderRotations() / ANGLE_MOTOR_GEAR_RATIO * TAU;
+        return rotationsToRadians(getAngleMotorAbsoluteEncoderRotations());
     }
 
     // Sets the relative encoder values to default
     public void resetEncoders() {
         driveMotorRelativeEncoder.setPosition(0);
+        // sets the relative encoder position to the absolute encoder position
         angleMotorRelativeEncoder.setPosition(getAngleMotorAbsoluteEncoderRadians());
     }
 }
