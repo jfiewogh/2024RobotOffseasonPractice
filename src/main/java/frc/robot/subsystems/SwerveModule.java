@@ -47,9 +47,7 @@ public class SwerveModule {
         encoderConfig = config;
         angleWheelAbsoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
 
-        System.out.println(angleMotorRelativeEncoder.getPosition());
         resetEncoders();
-        System.out.println(angleMotorRelativeEncoder.getPosition());
     }
 
     private static double getTurningAngleRadians(Translation2d location) {
@@ -153,25 +151,22 @@ public class SwerveModule {
 
     // Returns the angle motor absolute encoder value in rotations without offset
     public double getAngleWheelAbsoluteEncoderRotations() {
-        return -angleWheelAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
+        return angleWheelAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
-    // Returns the angle motor absolute encoder value in rotations with offset
-    public double getAngleWheelAbsoluteEncoderRotationsWithOffset() {
-        return getAngleMotorAbsoluteEncoderRotations() - encoderConfig.getOffset();
-    }
+
     // Returns the angle motor absolute encoder value in radians without offset
     public double getAngleMotorAbsoluteEncoderRotations() {
         return getAngleWheelAbsoluteEncoderRotations() / ANGLE_MOTOR_GEAR_RATIO;
     }
     // Returns the angle motor absolute encoder value in radians with offset
-    public double getAngleMotorAbsoluteEncoderRadiansWithOffset() {
-        return getAngleWheelAbsoluteEncoderRotationsWithOffset() / ANGLE_MOTOR_GEAR_RATIO * TAU;
+    public double getAngleMotorAbsoluteEncoderRadians() {
+        return getAngleWheelAbsoluteEncoderRotations() / ANGLE_MOTOR_GEAR_RATIO * TAU;
     }
 
     // Sets the relative encoder values to default
     public void resetEncoders() {
         driveMotorRelativeEncoder.setPosition(0);
-        angleMotorRelativeEncoder.setPosition(getAngleMotorAbsoluteEncoderRadiansWithOffset());
+        angleMotorRelativeEncoder.setPosition(getAngleMotorAbsoluteEncoderRadians());
     }
 }
 

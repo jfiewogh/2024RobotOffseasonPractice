@@ -13,7 +13,7 @@ public class DriveCommand extends Command {
     private final DriveSubsystem driveSubsystem;
     private final Joystick joystick;
 
-    private final DriveType driveType = DriveType.ARCADE;
+    private final DriveType driveType = DriveType.SWERVE;
 
     public DriveCommand(DriveSubsystem subsystem, Joystick joystick) {
         driveSubsystem = subsystem;
