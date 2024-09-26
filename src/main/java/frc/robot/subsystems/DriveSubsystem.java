@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -10,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
 
 public class DriveSubsystem extends SubsystemBase {
+    public Boolean printDesiredStates = false;
+
     private final double width = Units.inchesToMeters(19.75);
     private final double length = Units.inchesToMeters(19.75);
 
@@ -18,7 +21,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final Translation2d backLeftLocation = new Translation2d(-width/2, length/2);
     private final Translation2d backRightLocation = new Translation2d(-width/2, -length/2);
 
-    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
+    private final SwerveDriveKinematics kinematics;
 
     private final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
     private final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
@@ -30,6 +33,10 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
+    public DriveSubsystem() {
+        kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
+    }
+
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
@@ -39,9 +46,23 @@ public class DriveSubsystem extends SubsystemBase {
         backRightSwerveModule.setDriveMotorSpeed(rightSpeed);
     }
 
-    public void swerveDrive(double ySpeed, double xSpeed, double turnSpeed) {
+    public SwerveModuleState[] getModuleStates(double ySpeed, double xSpeed, double turnSpeed) {
         ChassisSpeeds speeds = new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
-        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
+        return kinematics.toSwerveModuleStates(speeds);
+    }
+
+    public void swerveDrive(double ySpeed, double xSpeed, double turnSpeed) {
+        SwerveModuleState[] moduleStates = getModuleStates(ySpeed, xSpeed, turnSpeed);
+        for(int i = 0; i < moduleStates.length; i++) {
+            moduleStates[i].angle = Rotation2d.fromRadians(-moduleStates[i].angle.getRadians());
+        }
+        if (printDesiredStates) {
+            for (int i = 0; i < moduleStates.length; i++) {
+                System.out.print(moduleStates[i].angle.getRadians() + " ");
+            }
+            System.out.println();
+            printDesiredStates = false;
+        }
         frontLeftSwerveModule.setState(moduleStates[0]);
         frontRightSwerveModule.setState(moduleStates[1]);
         backLeftSwerveModule.setState(moduleStates[2]);
@@ -58,10 +79,9 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void getEncoderValues() {
-        System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + frontLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("FR: " + frontRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + frontRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("BL: " + backLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + backLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " - " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " - " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println();
+        System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("FR: " + frontRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("BL: " + backLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+        System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
     }
 }

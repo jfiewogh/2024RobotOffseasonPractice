@@ -55,6 +55,7 @@ public class SwerveModule {
      */
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
+        state.angle = Rotation2d.fromRadians(state.angle.getRadians());
         setAngle(state.angle);
         setDriveMotorSpeed(speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond);
     }
