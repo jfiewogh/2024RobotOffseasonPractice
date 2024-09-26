@@ -8,7 +8,6 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
 import frc.robot.Constants;
@@ -83,13 +82,13 @@ public class SwerveModule {
         return new double[] {desiredAngle, speed};
     }
 
-    // Converts the error radians to speed
+    // Convert the error radians to speed
     private static double convertErrorRadiansToSpeed(double errorRadians) {
         return normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kP);
     }
 
     /**
-     * Limits the speed to the range -1 to 1
+     * Limit the speed to the range -1 to 1
      * @param speed the unnormalized speed
      * @return the normalized speed
      */
@@ -103,7 +102,7 @@ public class SwerveModule {
     }
 
     /**
-     * Optimizes the error so that the motor moves the shorter direction
+     * Optimize the error so that the motor moves the shorter direction
      * If the error is greater than pi, the other direction is shorter, so flip the angle
      * @param errorRadians the difference from the desired angle and the current angle
      * @return the optimized error
@@ -127,7 +126,7 @@ public class SwerveModule {
     }
 
     /**
-     * Spin the motor to the desired wheel angle
+     * Turn the motor to the desired wheel angle
      * @param desiredAngle the desired wheel angle
      */
     public void setAngle(Rotation2d desiredAngle) {
@@ -141,21 +140,25 @@ public class SwerveModule {
         angleMotor.set(speed);
     }
 
-    // Returns the angle motor relative encoder value in radians
+    // Return the angle motor relative encoder value in radians
     public double getAngleMotorRelativeEncoderRadians() {
         return angleMotorRelativeEncoder.getPosition();
     }
-    // Returns the angle motor relative encoder value in rotations
+    // Return the angle motor relative encoder value in rotations
     public double getAngleMotorRelativeEncoderRotations() {
         return radiansToRotations(getAngleMotorRelativeEncoderRadians());
     }
 
-    // Returns the angle in radians formed by the x and y components
+    // Return the angle in radians formed by the x and y components
     public static double getAngleRadiansFromComponents(double y, double x) {
         return normalizeAngleRadians(Math.atan2(y, x));
     }
 
-    // Get the coterminal angle between 0 and tau (360 degrees)
+    /**
+     * Convert the angle to be between 0 and tau (one circle)
+     * @param angleRadians the unnormalized angle radians
+     * @return the normalized angle radians
+     */
     public static double normalizeAngleRadians(double angleRadians) {
         while (angleRadians < 0 || angleRadians > Constants.kTau) {
             angleRadians += angleRadians < 0 ? Constants.kTau : -Constants.kTau;
@@ -163,24 +166,23 @@ public class SwerveModule {
         return angleRadians;
     }
 
-    // Returns the angle motor absolute encoder value in rotations
+    // Return the angle wheel absolute encoder value in rotations
     public double getAngleWheelAbsoluteEncoderRotations() {
         return angleWheelAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
-
-    // Returns the angle motor absolute encoder value in rotations
+    // Return the angle motor absolute encoder value in rotations
     public double getAngleMotorAbsoluteEncoderRotations() {
         return wheelToMotor(getAngleWheelAbsoluteEncoderRotations());
     }
-    // Returns the angle motor absolute encoder value in radians with offset
+    // Return the angle motor absolute encoder value in radians with offset
     public double getAngleMotorAbsoluteEncoderRadians() {
         return rotationsToRadians(getAngleMotorAbsoluteEncoderRotations());
     }
 
-    // Sets the relative encoder values to default
+    // Set the relative encoder values to default
     public void resetEncoders() {
         driveMotorRelativeEncoder.setPosition(0);
-        // sets the relative encoder position to the absolute encoder position
+        // set the relative encoder position to the absolute encoder position
         angleMotorRelativeEncoder.setPosition(getAngleMotorAbsoluteEncoderRadians());
     }
 }

@@ -21,17 +21,18 @@ public class DriveCommand extends Command {
         addRequirements(driveSubsystem);
     }
 
-    public void initialize() {
-
-    }
+    public void initialize() {}
 
     public void execute() {
-        if (driveType == DriveType.ARCADE) {
-            driveSubsystem.arcadeDrive(getLeftJoystickY() * 0.5, getRightJoystickX() * 0.5);
-        } 
-        else if (driveType == DriveType.SWERVE) {
-            driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
-            // driveSubsystem.swerveDriveAlternative(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
+        switch (driveType) {
+            case ARCADE:
+                driveSubsystem.arcadeDrive(getLeftJoystickY() * 0.5, getRightJoystickX() * 0.5);
+                break;
+            case SWERVE:
+                driveSubsystem.swerveDrive(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickX());
+                break;
+            default:
+                break;
         }
     } 
 

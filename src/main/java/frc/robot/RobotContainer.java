@@ -25,8 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private static final int JOYSTICK_PORT = 0;
-  private final Joystick joystick = new Joystick(JOYSTICK_PORT);
+  private final Joystick joystick = new Joystick(OperatorConstants.kDriverControllerPort);
   private final JoystickButton button1 = new JoystickButton(joystick, Button.LB.getPort());
 
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();

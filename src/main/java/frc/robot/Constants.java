@@ -26,4 +26,11 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  public static class AbsoluteEncoderConstants {
+    public static final double kFrontLeftOffset = -1.744 + kTau;
+    public static final double kFrontRightOffset = 2.0678;
+    public static final double kBackLeftOffset = -2.0801 + Math.PI;
+    public static final double kBackRightOffset = 2.8041;
+  }
 }
