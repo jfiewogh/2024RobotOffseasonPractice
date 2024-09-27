@@ -28,11 +28,13 @@ public final class Constants {
   }
 
   public static class AbsoluteEncoderConstants {
-    // to move the wheel clockwise, decrease
-    // to move the wheel counterclockwise, increase
-    public static final double kFrontLeftOffset = -1.744 + kTau + Math.PI / 4;
-    public static final double kFrontRightOffset = 2.0678 + Math.PI / 4 - Math.PI / 2;
-    public static final double kBackLeftOffset = -2.0801 + Math.PI + Math.PI / 4;
-    public static final double kBackRightOffset = 2.8041 + Math.PI / 4;
+    // to move the wheel clockwise, increase
+    // to move the wheel counterclockwise, decrease
+
+    // align the wheels then record absolute encoder values
+    public static final double kFrontLeftOffset = 0.84743377924;
+    public static final double kFrontRightOffset = 0.20410059132;
+    public static final double kBackLeftOffset = 0.29394180287;
+    public static final double kBackRightOffset = 0.57128637592;
   }
 }

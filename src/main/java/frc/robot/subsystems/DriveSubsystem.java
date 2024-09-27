@@ -8,11 +8,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
 
 public class DriveSubsystem extends SubsystemBase {
-    public Boolean printDesiredStates = false;
-
     private final double width = Units.inchesToMeters(19.75);
     private final double length = Units.inchesToMeters(19.75);
 
@@ -21,7 +21,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final Translation2d backLeftLocation = new Translation2d(-width/2, length/2);
     private final Translation2d backRightLocation = new Translation2d(-width/2, -length/2);
 
-    private final SwerveDriveKinematics kinematics;
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
     private final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
     private final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
@@ -33,9 +33,9 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
-    public DriveSubsystem() {
-        kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
-    }
+    private final AHRS gyro = new AHRS();
+
+    public DriveSubsystem() {}
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
@@ -46,23 +46,18 @@ public class DriveSubsystem extends SubsystemBase {
         backRightSwerveModule.setDriveMotorSpeed(rightSpeed);
     }
 
-    public SwerveModuleState[] getModuleStates(double ySpeed, double xSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
-        return kinematics.toSwerveModuleStates(speeds);
+    // Robot centric speeds
+    public SwerveModuleState[] getModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
+        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
+        for(int i = 0; i < moduleStates.length; i++) {
+            moduleStates[i].angle.unaryMinus();
+        }
+        return moduleStates;
     }
 
-    public void swerveDrive(double ySpeed, double xSpeed, double turnSpeed) {
-        SwerveModuleState[] moduleStates = getModuleStates(ySpeed, xSpeed, turnSpeed);
-        for(int i = 0; i < moduleStates.length; i++) {
-            moduleStates[i].angle = Rotation2d.fromRadians(-moduleStates[i].angle.getRadians());
-        }
-        if (printDesiredStates) {
-            for (int i = 0; i < moduleStates.length; i++) {
-                System.out.print(moduleStates[i].angle.getRadians() + " ");
-            }
-            System.out.println();
-            printDesiredStates = false;
-        }
+    public void swerveDrive(double lateralSpeed, double longitudinalSpeed, double turnSpeed) {
+        SwerveModuleState[] moduleStates = getModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
         frontLeftSwerveModule.setState(moduleStates[0]);
         frontRightSwerveModule.setState(moduleStates[1]);
         backLeftSwerveModule.setState(moduleStates[2]);
@@ -83,5 +78,9 @@ public class DriveSubsystem extends SubsystemBase {
         System.out.println("FR: " + frontRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
         System.out.println("BL: " + backLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
         System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+    }
+
+    public void getGyroValue() {
+        System.out.println(gyro.getRotation2d());
     }
 }

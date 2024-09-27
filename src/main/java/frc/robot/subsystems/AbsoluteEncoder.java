@@ -30,7 +30,7 @@ public class AbsoluteEncoder {
 
         private EncoderConfig(int id, double offset) {
             this.id = id;
-            this.offset = offset / (Math.PI * 2);
+            this.offset = offset;
         }
 
         public int getId() {
