@@ -1,16 +1,19 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
+
+// problems
+// when changing the angle, the gear makes a weird noise
 
 public class DriveSubsystem extends SubsystemBase {
     private final double width = Units.inchesToMeters(19.75);
@@ -33,15 +36,8 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
-    private final AHRS gyro = new AHRS();
-    /*
-     * Plan for gyro
-     * the desired angle should be the gyro angle minus the robot centric angle
-     */
-
-    public DriveSubsystem() {
-    }
-
+    private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
+    
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
@@ -54,8 +50,8 @@ public class DriveSubsystem extends SubsystemBase {
     //
     public SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
-        for(int i = 0; i < moduleStates.length; i++) {
-            moduleStates[i].angle.unaryMinus();
+        for (int i = 0; i < moduleStates.length; i++) {
+            moduleStates[i].angle = moduleStates[i].angle.unaryMinus();
         }
         return moduleStates;
     }
@@ -73,7 +69,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void swerveDrive(double lateralSpeed, double longitudinalSpeed, double turnSpeed) {
-        SwerveModuleState[] moduleStates = getRobotCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
+        SwerveModuleState[] moduleStates = getFieldCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
         frontLeftSwerveModule.setState(moduleStates[0]);
         frontRightSwerveModule.setState(moduleStates[1]);
         backLeftSwerveModule.setState(moduleStates[2]);
