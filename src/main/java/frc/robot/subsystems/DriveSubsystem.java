@@ -51,9 +51,8 @@ public class DriveSubsystem extends SubsystemBase {
         backRightSwerveModule.setDriveMotorSpeed(rightSpeed);
     }
 
-    // Robot centric speeds
-    public SwerveModuleState[] getModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
+    //
+    public SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
         for(int i = 0; i < moduleStates.length; i++) {
             moduleStates[i].angle.unaryMinus();
@@ -61,8 +60,20 @@ public class DriveSubsystem extends SubsystemBase {
         return moduleStates;
     }
 
+    // Robot centric
+    public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
+        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
+        return getModuleStatesFromChassisSpeeds(speeds);
+    }
+
+    // Field centric
+    public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, gyro.getRotation2d());
+        return getModuleStatesFromChassisSpeeds(speeds);
+    }
+
     public void swerveDrive(double lateralSpeed, double longitudinalSpeed, double turnSpeed) {
-        SwerveModuleState[] moduleStates = getModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
+        SwerveModuleState[] moduleStates = getRobotCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
         frontLeftSwerveModule.setState(moduleStates[0]);
         frontRightSwerveModule.setState(moduleStates[1]);
         backLeftSwerveModule.setState(moduleStates[2]);
