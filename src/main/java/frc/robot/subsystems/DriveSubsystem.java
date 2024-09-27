@@ -34,8 +34,13 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
     private final AHRS gyro = new AHRS();
+    /*
+     * Plan for gyro
+     * the desired angle should be the gyro angle minus the robot centric angle
+     */
 
-    public DriveSubsystem() {}
+    public DriveSubsystem() {
+    }
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
