@@ -89,15 +89,15 @@ public class SwerveModule {
     }
 
     /**
-     * Limit the speed to the range -1 to 1
+     * Limit the speed to the range -maxSpeed to maxSpeed
      * @param speed the unnormalized speed
      * @return the normalized speed
      */
     private static double normalizeSpeed(double speed) {
-        if (speed > 1) {
-            return 1;
-        } else if (speed < -1) {
-            return -1;
+        if (speed > SwerveConstants.kMaxAngleMotorSpeed) {
+            return SwerveConstants.kMaxAngleMotorSpeed;
+        } else if (speed < -SwerveConstants.kMaxAngleMotorSpeed) {
+            return -SwerveConstants.kMaxAngleMotorSpeed;
         }
         return speed;
     }

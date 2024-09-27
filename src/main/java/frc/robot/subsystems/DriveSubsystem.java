@@ -14,6 +14,7 @@ import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
 
 // problems
 // when changing the angle, the gear makes a weird noise
+// sometimes the wheels are not aligned at the right angle, slightly off
 
 public class DriveSubsystem extends SubsystemBase {
     private final double width = Units.inchesToMeters(19.75);
