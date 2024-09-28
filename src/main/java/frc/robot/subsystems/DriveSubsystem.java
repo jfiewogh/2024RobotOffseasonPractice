@@ -38,6 +38,11 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
+
+    public DriveSubsystem() {
+        // the starting direction of the robot is the fixed direction
+        gyro.reset();
+    }
     
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;

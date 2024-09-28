@@ -40,14 +40,20 @@ public class DriveCommand extends Command {
         driveSubsystem.swerveDrive(0, 0, 0);
     }
 
+    // currently, left is positive
+    // right should be positive
     private double getLeftJoystickX() {
         return joystick.getRawAxis(0);
     }
     
+    // currently, down is positive
+    // up should be positive
     private double getLeftJoystickY() {
         return joystick.getRawAxis(1);
     }
     
+    // currently, left is positive
+    // right should be positive
     private double getRightJoystickX() {
         return joystick.getRawAxis(2);
     }
