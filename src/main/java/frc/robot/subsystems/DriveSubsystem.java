@@ -45,8 +45,8 @@ public class DriveSubsystem extends SubsystemBase {
     }
     
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
-        double leftSpeed = forwardSpeed + turnSpeed;
-        double rightSpeed = forwardSpeed - turnSpeed;
+        double leftSpeed = forwardSpeed - turnSpeed;
+        double rightSpeed = forwardSpeed + turnSpeed;
         frontLeftSwerveModule.setDriveMotorSpeed(leftSpeed);
         frontRightSwerveModule.setDriveMotorSpeed(leftSpeed);
         backLeftSwerveModule.setDriveMotorSpeed(rightSpeed);
