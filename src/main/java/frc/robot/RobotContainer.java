@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.DriveCommand;
+import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -30,8 +30,14 @@ public class RobotContainer {
   private final JoystickButton button1 = new JoystickButton(joystick, Button.LB.getPort());
   private final JoystickButton button2 = new JoystickButton(joystick, Button.RB.getPort());
 
+  private final JoystickButton LT = new JoystickButton(joystick, Button.LT.getPort());
+  private final JoystickButton RT = new JoystickButton(joystick, Button.RT.getPort());
+
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final DriveCommand driveCommand = new DriveCommand(driveSubsystem, joystick);
+
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final IntakeCommand intakeCommand = new IntakeCommand(intakeSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -42,8 +48,14 @@ public class RobotContainer {
   private void configureBindings() {
     // Default command means it will constantly run 
     driveSubsystem.setDefaultCommand(driveCommand);
+
+    // test
     button1.whileTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
-    button2.whileTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
+    button2.onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
+    // button2.onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
+
+    LT.whileTrue(intakeCommand);
+    LT.whileFalse(new InstantCommand(() -> intakeSubsystem.stopMotors()));
   }
 }
 

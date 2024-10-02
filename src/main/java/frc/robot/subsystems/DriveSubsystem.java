@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -13,24 +14,24 @@ import com.kauailabs.navx.frc.AHRS;
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
 
 // problems
-// when changing the angle, the gear makes a weird noise
+// FIXED: when changing the angle, the gear makes a weird noise
 // sometimes the wheels are not aligned at the right angle, slightly off
 
 public class DriveSubsystem extends SubsystemBase {
-    private final double width = Units.inchesToMeters(19.75);
-    private final double length = Units.inchesToMeters(19.75);
+    private static final double width = Units.inchesToMeters(19.75);
+    private static final double length = Units.inchesToMeters(19.75);
 
-    private final Translation2d frontLeftLocation = new Translation2d(width/2, length/2);
-    private final Translation2d frontRightLocation = new Translation2d(width/2, -length/2);
-    private final Translation2d backLeftLocation = new Translation2d(-width/2, length/2);
-    private final Translation2d backRightLocation = new Translation2d(-width/2, -length/2);
+    private static final Translation2d frontLeftLocation = new Translation2d(width/2, length/2);
+    private static final Translation2d frontRightLocation = new Translation2d(width/2, -length/2);
+    private static final Translation2d backLeftLocation = new Translation2d(-width/2, length/2);
+    private static final Translation2d backRightLocation = new Translation2d(-width/2, -length/2);
 
-    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
+    private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
-    private final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
-    private final EncoderConfig backLeftConfig = EncoderConfig.BACK_LEFT;
-    private final EncoderConfig backRightConfig = EncoderConfig.BACK_RIGHT;
+    private static final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
+    private static final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
+    private static final EncoderConfig backLeftConfig = EncoderConfig.BACK_LEFT;
+    private static final EncoderConfig backRightConfig = EncoderConfig.BACK_RIGHT;
 
     private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, frontLeftConfig);
     private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, frontRightConfig);
@@ -40,8 +41,9 @@ public class DriveSubsystem extends SubsystemBase {
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
     public DriveSubsystem() {
-        // the starting direction of the robot is the fixed direction
-        gyro.reset();
+        // sets the starting direction of the robot to be 0 degrees
+        // doesn't work
+        // gyro.reset();
     }
     
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
@@ -70,7 +72,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, gyro.getRotation2d());
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getRotation2d());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
@@ -98,7 +100,15 @@ public class DriveSubsystem extends SubsystemBase {
         System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
     }
 
+    public Rotation2d getRotation2d() {
+        // positive gyro angle is clockwise
+        // positive swerve drive angle is counterclockwise
+        // so flip the sign
+        // rotate origin 90 degrees clockwise
+        return Rotation2d.fromDegrees(-gyro.getAngle() + 90);
+    }
+
     public void getGyroValue() {
-        System.out.println(gyro.getRotation2d());
+        System.out.println(getRotation2d());
     }
 }

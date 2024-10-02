@@ -19,9 +19,9 @@ public final class Constants {
 
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(14);
-    public static final double kP = 0.1;
+    public static final double kP = 0.1; // 0.1
     public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
-    public static final double kMaxAngleMotorSpeed = 0.9;
+    public static final double kMaxAngleMotorSpeed = 1;
   } 
 
   public static class OperatorConstants {
