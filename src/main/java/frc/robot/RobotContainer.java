@@ -37,14 +37,15 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Test Buttons
-        new JoystickButton(joystick, Button.LB.getPort()).onTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
-        new JoystickButton(joystick, Button.RB.getPort()).onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
+        // new JoystickButton(joystick, Button.LB.getPort()).onTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
+        // new JoystickButton(joystick, Button.RB.getPort()).onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
+        new JoystickButton(joystick, Button.B1.getPort()).onTrue(new InstantCommand(() -> intakeSubsystem.getIntakeDeployRelativePosition()));
 
         /* INTAKE */
-        new JoystickButton(joystick, Button.RT.getPort()).onTrue(new IntakeDeployCommand(intakeSubsystem, 0.5));
-        new JoystickButton(joystick, Button.RT.getPort()).onFalse(new IntakeDeployCommand(intakeSubsystem, -0.5));
-        new JoystickButton(joystick, Button.LT.getPort()).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.5));
-        new JoystickButton(joystick, Button.LT.getPort()).onFalse(new IntakeRollerCommand(intakeSubsystem, -0.5));
+        new JoystickButton(joystick, Button.RB.getPort()).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
+        new JoystickButton(joystick, Button.RT.getPort()).onTrue(new IntakeDeployCommand(intakeSubsystem, false));
+        new JoystickButton(joystick, Button.LB.getPort()).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.5));
+        new JoystickButton(joystick, Button.LT.getPort()).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.5));
     }
 }
 

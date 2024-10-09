@@ -2,14 +2,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.Constants.IntakeConstants;
 
 public class IntakeDeployCommand extends Command {
     private final IntakeSubsystem intakeSubsystem;
-    private final double speed;
+    private final boolean isDeploy;
 
-    public IntakeDeployCommand(IntakeSubsystem subsystem, double speed) {
+    public IntakeDeployCommand(IntakeSubsystem subsystem, boolean isDeploy) {
         intakeSubsystem = subsystem;
-        this.speed = speed;
+        this.isDeploy = isDeploy;
         addRequirements(intakeSubsystem);
     }
 
@@ -19,7 +20,11 @@ public class IntakeDeployCommand extends Command {
 
     @Override
     public void execute() {
-        intakeSubsystem.setIntakeDeployMotor(speed);
+        if (isDeploy) {
+            intakeSubsystem.setIntakeDeployMotor(IntakeConstants.kDeployPosition);
+        } else {
+            intakeSubsystem.setIntakeDeployMotor(IntakeConstants.kRetractPosition);
+        }
     }
 
     @Override

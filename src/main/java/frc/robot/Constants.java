@@ -49,4 +49,10 @@ public final class Constants {
     public static final int kIntakeRollerMotorDeviceId = 9;
     public static final int kIntakeIndexMotorDeviceId = 15; 
   }
+
+  public static class IntakeConstants {
+    public static final double kDeployPosition = 0;
+    public static final double kRetractPosition = 0;
+    public static final double kP = 0.1;
+  }
 }
