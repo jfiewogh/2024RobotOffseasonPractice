@@ -43,4 +43,10 @@ public final class Constants {
     public static final double kBackLeftOffset = -(0.67138671875);
     public static final double kBackRightOffset = -(0.947998046875);
   }
+
+  public static class MotorConstants {
+    public static final int kIntakeDeployMotorDeviceId = 16;
+    public static final int kIntakeRollerMotorDeviceId = 9;
+    public static final int kIntakeIndexMotorDeviceId = 15; 
+  }
 }

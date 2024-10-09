@@ -21,8 +21,10 @@ public class DriveCommand extends Command {
         addRequirements(driveSubsystem);
     }
 
+    @Override
     public void initialize() {}
 
+    @Override
     public void execute() {
         switch (driveType) {
             case ARCADE:
@@ -36,9 +38,8 @@ public class DriveCommand extends Command {
         }
     } 
 
-    public void end() {
-        driveSubsystem.swerveDrive(0, 0, 0);
-    }
+    @Override
+    public void end(boolean interrupted) {}
 
     public void printJoystickAxes() {
         System.out.println("LX: " + getLeftJoystickX());

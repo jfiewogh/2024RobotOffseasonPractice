@@ -3,37 +3,22 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import frc.robot.Constants.MotorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private final CANSparkMax intakeMotor = new CANSparkMax(9, MotorType.kBrushless);
-    private final CANSparkMax transitionMotor = new CANSparkMax(15, MotorType.kBrushless);
+    private final CANSparkMax intakeDeployMotor = new CANSparkMax(MotorConstants.kIntakeDeployMotorDeviceId, MotorType.kBrushless);
+    private final CANSparkMax intakeRollerMotor = new CANSparkMax(MotorConstants.kIntakeRollerMotorDeviceId, MotorType.kBrushless);
+    private final CANSparkMax intakeIndexMotor = new CANSparkMax(MotorConstants.kIntakeIndexMotorDeviceId, MotorType.kBrushless);
 
-    public void deployIntake() {
-        // run motor
+    public void setIntakeDeployMotor(double speed) {
+        intakeDeployMotor.set(speed);
     }
 
-    public void retractIntake() {
-        // reverse
+    public void setIntakeRollerMotor(double speed) {
+        intakeRollerMotor.set(speed);
     }
 
-    public void runIntakeMotor(double speed) {
-        intakeMotor.set(speed);
-    }
-
-    public void runTransitionMotor(double speed) {
-        transitionMotor.set(speed);
-    }
-
-    public void stopMotors() {
-        stopIntakeMotor();
-        stopTransitionMotor();
-    }
-
-    public void stopIntakeMotor() {
-        intakeMotor.set(0);
-    }
-
-    public void stopTransitionMotor() {
-        transitionMotor.set(0);
+    public void setIntakeIndexMotor(double speed) {
+        intakeIndexMotor.set(speed);
     }
 }
