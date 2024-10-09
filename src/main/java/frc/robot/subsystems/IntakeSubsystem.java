@@ -8,6 +8,14 @@ public class IntakeSubsystem extends SubsystemBase {
     private final CANSparkMax intakeMotor = new CANSparkMax(9, MotorType.kBrushless);
     private final CANSparkMax transitionMotor = new CANSparkMax(15, MotorType.kBrushless);
 
+    public void deployIntake() {
+        // run motor
+    }
+
+    public void retractIntake() {
+        // reverse
+    }
+
     public void runIntakeMotor(double speed) {
         intakeMotor.set(speed);
     }

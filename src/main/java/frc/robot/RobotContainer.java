@@ -55,7 +55,10 @@ public class RobotContainer {
     // button2.onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
 
     LT.whileTrue(intakeCommand);
-    LT.whileFalse(new InstantCommand(() -> intakeSubsystem.stopMotors()));
+    LT.whileFalse(new InstantCommand(() -> {
+      intakeSubsystem.stopMotors();
+      // retract intake
+    }));
   }
 }
 
