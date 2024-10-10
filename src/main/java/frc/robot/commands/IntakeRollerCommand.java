@@ -38,7 +38,7 @@ public class IntakeRollerCommand extends Command {
     }
 
     @Override
-    // Stops after one second
+    // Stops after three seconds
     public boolean isFinished() {
         return Timer.getFPGATimestamp() - startTimestamp > 3;
     }

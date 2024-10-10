@@ -21,6 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
     
     private final CANSparkMax intakeRollerMotor = new CANSparkMax(MotorConstants.kIntakeRollerMotorDeviceId, MotorType.kBrushless);
     private final CANSparkMax intakeIndexMotor = new CANSparkMax(MotorConstants.kIntakeIndexMotorDeviceId, MotorType.kBrushless);
+    
     private final CANSparkMax intakeShooterInMotor = new CANSparkMax(11, MotorType.kBrushless);
 
     /*
