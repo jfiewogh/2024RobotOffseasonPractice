@@ -7,7 +7,9 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 public class IntakeRollerCommand extends Command {
     private final IntakeSubsystem intakeSubsystem;
+
     private final double speed;
+
     private double startTimestamp;
 
     public IntakeRollerCommand(IntakeSubsystem subsystem, double speed) {
@@ -24,15 +26,20 @@ public class IntakeRollerCommand extends Command {
     @Override
     public void execute() {
         intakeSubsystem.setIntakeRollerMotor(speed);
+        intakeSubsystem.setIntakeIndexMotor(speed);
+        intakeSubsystem.setIntakeShooterInMotor(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
+        intakeSubsystem.setIntakeRollerMotor(0);
+        intakeSubsystem.setIntakeIndexMotor(0);
+        intakeSubsystem.setIntakeShooterInMotor(0);
     }
 
     @Override
     // Stops after one second
     public boolean isFinished() {
-        return Timer.getFPGATimestamp() - startTimestamp > 1;
+        return Timer.getFPGATimestamp() - startTimestamp > 3;
     }
 }

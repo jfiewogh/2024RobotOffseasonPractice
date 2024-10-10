@@ -31,6 +31,8 @@ public final class Constants {
   public static class AbsoluteEncoderConstants {
     // positive is clockwise, negative is counterclockwise
     /*
+     * THESE SHOULD WORK, SO TRY NOT TO CHANGE
+     * 
      * HOW TO GET THE VALUES
      * set the offsets to 0
      * run the robot on arcade drive, and align the wheels so that they are all facing forward
@@ -51,8 +53,8 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double kDeployPosition = 0;
+    public static final double kDeployPosition = 12;
     public static final double kRetractPosition = 0;
-    public static final double kP = 0.1;
+    public static final double kP = 0.04;
   }
 }

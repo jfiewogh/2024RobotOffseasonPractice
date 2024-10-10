@@ -10,12 +10,18 @@ import frc.robot.Constants.IntakeConstants;
 
 // make sure the intake deploy motor is retracted when starting
 
+// FUTURE UPDATES
+// take into account force from gravity
+// to make the deploy and retract smoother
+// this should similar to pendulum, so there is harmonic motion (sinusoidal)
+
 public class IntakeSubsystem extends SubsystemBase {
     private final CANSparkMax intakeDeployMotor = new CANSparkMax(MotorConstants.kIntakeDeployMotorDeviceId, MotorType.kBrushless);
     private final RelativeEncoder intakeDeployMotorRelativeEncoder = intakeDeployMotor.getEncoder();
     
     private final CANSparkMax intakeRollerMotor = new CANSparkMax(MotorConstants.kIntakeRollerMotorDeviceId, MotorType.kBrushless);
     private final CANSparkMax intakeIndexMotor = new CANSparkMax(MotorConstants.kIntakeIndexMotorDeviceId, MotorType.kBrushless);
+    private final CANSparkMax intakeShooterInMotor = new CANSparkMax(11, MotorType.kBrushless);
 
     /*
      * Return the relative encoder position of the intake deploy motor
@@ -42,5 +48,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void setIntakeIndexMotor(double speed) {
         intakeIndexMotor.set(speed);
+    }
+
+    public void setIntakeShooterInMotor(double speed) {
+        intakeShooterInMotor.set(speed);
     }
 }
