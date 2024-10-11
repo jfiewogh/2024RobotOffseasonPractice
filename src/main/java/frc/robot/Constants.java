@@ -19,7 +19,7 @@ public final class Constants {
 
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(14);
-    public static final double kP = 0.1; // 0.1
+    public static final double kP = 0.01; // 0.1
     public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
     public static final double kMaxAngleMotorSpeed = 1;
   } 
@@ -40,6 +40,15 @@ public final class Constants {
      * set the offsets to the negative of the recorded values
      * (To see the offsets, you have to run twice for some reason.)
      */
+
+
+     /*
+     ﻿﻿﻿﻿﻿﻿ FL: -34.68364717806724 0.846435546875 18.137904575892858 ﻿
+﻿﻿﻿﻿﻿﻿ FR: -34.41565848292055 0.15087890625 3.233119419642857 ﻿
+﻿﻿﻿﻿﻿﻿ BL: -34.26970735796816 0.096923828125 2.076939174107143 ﻿
+﻿﻿﻿﻿﻿﻿ BR: -55.626163144897866 0.404296875 8.663504464285714 ﻿
+
+      */
     public static final double kFrontLeftOffset = -(0.21826171875);
     public static final double kFrontRightOffset = -(0.843505859375);
     public static final double kBackLeftOffset = -(0.67138671875);
