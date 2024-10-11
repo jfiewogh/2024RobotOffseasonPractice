@@ -43,7 +43,7 @@ public class DriveSubsystem extends SubsystemBase {
     public DriveSubsystem() {
         // sets the starting direction of the robot to be 0 degrees
         // doesn't work
-        // gyro.reset();
+        resetGyro();
     }
     
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
@@ -110,5 +110,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void getGyroValue() {
         System.out.println(getRotation2d());
+    }
+
+    public void resetGyro() {
+        gyro.reset();
     }
 }

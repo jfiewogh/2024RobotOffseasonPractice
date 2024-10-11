@@ -42,17 +42,16 @@ public final class Constants {
      */
 
 
-     /*
-     ﻿﻿﻿﻿﻿﻿ FL: -34.68364717806724 0.846435546875 18.137904575892858 ﻿
-﻿﻿﻿﻿﻿﻿ FR: -34.41565848292055 0.15087890625 3.233119419642857 ﻿
-﻿﻿﻿﻿﻿﻿ BL: -34.26970735796816 0.096923828125 2.076939174107143 ﻿
-﻿﻿﻿﻿﻿﻿ BR: -55.626163144897866 0.404296875 8.663504464285714 ﻿
-
-      */
-    public static final double kFrontLeftOffset = -(0.21826171875);
-    public static final double kFrontRightOffset = -(0.843505859375);
-    public static final double kBackLeftOffset = -(0.67138671875);
-    public static final double kBackRightOffset = -(0.947998046875);
+    /* 2024 Robot Code Values
+    FrontLeftModule(Constants.canIdFrontLeftCancoder, false, -1.7441, -1.1520),
+    FrontRightModule(Constants.canIdFrontRightCancoder, false, 2.0678, 2.0816 - (Math.PI)),
+    BackLeftModule(Constants.canIdBackLeftCancoder, false, -2.0801 + (Math.PI), -0.9664),
+    BackRightModule(Constants.canIdBackRightCancoder, false, 2.8041, -0.5906);
+    */
+    public static final double kFrontLeftOffset = -1.7441 / kTau; // = -(0.21826171875);
+    public static final double kFrontRightOffset = 2.0678 / kTau ; // = -(0.843505859375);
+    public static final double kBackLeftOffset = (-2.0801 + Math.PI) / kTau; // = -(0.67138671875);
+    public static final double kBackRightOffset = 2.8041 / kTau; // = -(0.947998046875);
   }
 
   public static class MotorConstants {
