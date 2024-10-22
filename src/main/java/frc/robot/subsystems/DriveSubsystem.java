@@ -58,12 +58,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     //
     public SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
-        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
-        // flip angles to convert from counterclockwise to clockwise
-        // for (int i = 0; i < moduleStates.length; i++) {
-        //     moduleStates[i].angle = moduleStates[i].angle.unaryMinus();
-        // }
-        return moduleStates;
+        return kinematics.toSwerveModuleStates(speeds);
     }
 
     // Robot centric
@@ -103,19 +98,6 @@ public class DriveSubsystem extends SubsystemBase {
         backLeftSwerveModule.setAngleMotorSpeed(0.1);
         backRightSwerveModule.setAngleMotorSpeed(0.1);
     }
-
-    /* counterclockwise spin
-     * FL: 36.28889098649009 0.697021484375 14.936174665178571 ﻿
-﻿﻿﻿﻿﻿﻿ FR: 15.108051809243896 0.702880859375 15.061732700892856 ﻿
-﻿﻿﻿﻿﻿﻿ BL: 14.861845649834244 0.69970703125 14.993722098214285 ﻿
-﻿﻿﻿﻿﻿﻿ BR: 36.17272555759822 0.68994140625 14.784458705357142 ﻿
-
-﻿﻿﻿﻿﻿﻿ FL: 37.78886609804092 0.767822265625 16.453334263392858 ﻿
-﻿﻿﻿﻿﻿﻿ FR: 16.608026920794728 0.77099609375 16.521344866071427 ﻿
-﻿﻿﻿﻿﻿﻿ BL: 16.3380116326303 0.762939453125 16.348702566964285 ﻿
-﻿﻿﻿﻿﻿﻿ BR: 37.69651222641553 0.755615234375 16.191755022321427 ﻿
-
-     */
 
     public void getEncoderValues() {
         System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());

@@ -44,7 +44,7 @@ public class AbsoluteEncoder {
         CANcoderConfiguration CANcoderConfig = new CANcoderConfiguration();
         MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
         
-        magnetSensorConfigs.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
+        magnetSensorConfigs.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf);
         magnetSensorConfigs.withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
         magnetSensorConfigs.withMagnetOffset(offset);
 

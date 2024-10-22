@@ -60,9 +60,23 @@ public class SwerveModule {
      */
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
-        setAngle(state.angle);
-        // optimize
-        setDriveMotorSpeed(speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond);
+        double driveMotorSpeed = speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
+
+        double currentWheelAngleRadians = normalizeAngleRadians(motorToWheel(getAngleMotorRelativeEncoderRadians()));
+        double desiredWheelAngleRadians = normalizeAngleRadians(state.angle.getRadians());
+
+        // Optimize Error
+        double wheelErrorRadians = desiredWheelAngleRadians - currentWheelAngleRadians;
+        if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
+            wheelErrorRadians = normalizeAngleRadians(desiredWheelAngleRadians + Math.PI);
+            driveMotorSpeed = -driveMotorSpeed;
+        }
+
+        double motorErrorRadians = wheelToMotor(wheelErrorRadians);
+        double speed = convertErrorRadiansToSpeed(motorErrorRadians);
+        angleMotor.set(speed);
+
+        setDriveMotorSpeed(driveMotorSpeed);
     }
 
     public void setState(double driveSpeed, double driveAngleRadians, double turnSpeed) {
@@ -135,7 +149,7 @@ public class SwerveModule {
      * Turn the motor to the desired wheel angle
      * @param desiredAngle the desired wheel angle
      */
-    public double setAngle(Rotation2d desiredAngle) {
+    public void setAngle(Rotation2d desiredAngle) {
         double currentWheelAngleRadians = normalizeAngleRadians(motorToWheel(getAngleMotorRelativeEncoderRadians()));
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
         double wheelErrorRadians = optimizeErrorRadians(normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians));
@@ -159,13 +173,13 @@ public class SwerveModule {
     }
 
     /**
-     * Convert the angle to be between 0 and tau (one circle)
+     * Convert the angle to be between -pi and pi
      * @param angleRadians the unnormalized angle radians
      * @return the normalized angle radians
      */
     public static double normalizeAngleRadians(double angleRadians) {
-        while (angleRadians < 0 || angleRadians > Constants.kTau) {
-            angleRadians += angleRadians < 0 ? Constants.kTau : -Constants.kTau;
+        while (angleRadians < -Math.PI || angleRadians > Math.PI) {
+            angleRadians += angleRadians < -Math.PI ? Constants.kTau : -Constants.kTau;
         }
         return angleRadians;
     }
