@@ -19,7 +19,7 @@ public final class Constants {
 
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(14);
-    public static final double kP = 0.1; // 0.1
+    public static final double kP = 0.05; // 0.1
     public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
     public static final double kMaxAngleMotorSpeed = 1;
   } 
@@ -29,18 +29,37 @@ public final class Constants {
   }
 
   public static class AbsoluteEncoderConstants {
-    // positive is clockwise, negative is counterclockwise
     /*
-     * HOW TO GET THE VALUES
+     * HOW TO GET THE VALUES (this might not work)
      * set the offsets to 0
      * run the robot on arcade drive, and align the wheels so that they are all facing forward
      * record the absolute encoder values
      * set the offsets to the negative of the recorded values
      * (To see the offsets, you have to run twice for some reason.)
      */
-    public static final double kFrontLeftOffset = -(0.21826171875);
-    public static final double kFrontRightOffset = -(0.843505859375);
-    public static final double kBackLeftOffset = -(0.67138671875);
-    public static final double kBackRightOffset = -(0.947998046875);
+
+    /* 2024 Robot Code Values
+    FrontLeftModule(Constants.canIdFrontLeftCancoder, false, -1.7441, -1.1520),
+    FrontRightModule(Constants.canIdFrontRightCancoder, false, 2.0678, 2.0816 - (Math.PI)),
+    BackLeftModule(Constants.canIdBackLeftCancoder, false, -2.0801 + (Math.PI), -0.9664),
+    BackRightModule(Constants.canIdBackRightCancoder, false, 2.8041, -0.5906);
+    */
+
+    public static final double kFrontLeftOffset = -1.7441 / Constants.kTau; // (0.732666015625);
+    public static final double kFrontRightOffset = 2.0678 / Constants.kTau; // (0.328125);
+    public static final double kBackLeftOffset = (-2.0801 + Math.PI) / Constants.kTau; // (0.1689453125);
+    public static final double kBackRightOffset = 2.8041 / Constants.kTau; // (0.45458984375
+  }
+
+  public static class MotorConstants {
+    public static final int kIntakeDeployMotorDeviceId = 16;
+    public static final int kIntakeRollerMotorDeviceId = 9;
+    public static final int kIntakeIndexMotorDeviceId = 15; 
+  }
+
+  public static class IntakeConstants {
+    public static final double kDeployPosition = 12;
+    public static final double kRetractPosition = 0;
+    public static final double kP = 0.04;
   }
 }

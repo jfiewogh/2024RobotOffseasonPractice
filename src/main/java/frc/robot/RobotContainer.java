@@ -5,14 +5,15 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.Controller.Button;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -24,38 +25,40 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final Joystick joystick = new Joystick(OperatorConstants.kDriverControllerPort);
+    // The robot's subsystems and commands are defined here...
+    private final Controller controller = new Controller(OperatorConstants.kDriverControllerPort);
 
-  private final JoystickButton button1 = new JoystickButton(joystick, Button.LB.getPort());
-  private final JoystickButton button2 = new JoystickButton(joystick, Button.RB.getPort());
+    private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
-  private final JoystickButton LT = new JoystickButton(joystick, Button.LT.getPort());
-  private final JoystickButton RT = new JoystickButton(joystick, Button.RT.getPort());
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer() {
+        driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, controller));
+        configureBindings();
+    }
 
-  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-  private final DriveCommand driveCommand = new DriveCommand(driveSubsystem, joystick);
+    private void configureBindings() { 
+        // Test
+        controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
+        controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
+        controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
 
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final IntakeCommand intakeCommand = new IntakeCommand(intakeSubsystem);
+        /* INTAKE */
+        controller.getButton(Button.RB).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
+        controller.getButton(Button.RT).onTrue(new IntakeDeployCommand(intakeSubsystem, false));
+        controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3));
+        controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3));
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-  }
+        // new JoystickButton(joystick, Button.B2.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(-1)));
+        // new JoystickButton(joystick, Button.B3.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(1)));
+    }
 
-  private void configureBindings() {
-    // Default command means it will constantly run 
-    driveSubsystem.setDefaultCommand(driveCommand);
-
-    // test
-    button1.whileTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
-    button2.onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
-    // button2.onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
-
-    LT.whileTrue(intakeCommand);
-    LT.whileFalse(new InstantCommand(() -> intakeSubsystem.stopMotors()));
-  }
+    public Command getAutonomousCommand() {
+        return new SequentialCommandGroup(
+            new IntakeDeployCommand(intakeSubsystem, true),
+            new IntakeRollerCommand(intakeSubsystem, 0.3)        
+        );
+    }
 }
 
