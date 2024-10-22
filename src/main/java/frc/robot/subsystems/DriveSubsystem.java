@@ -43,12 +43,13 @@ public class DriveSubsystem extends SubsystemBase {
     public DriveSubsystem() {
         // sets the starting direction of the robot to be 0 degrees
         // doesn't work
-        resetGyro();
+        // resetGyro();
     }
     
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
-        double leftSpeed = forwardSpeed - turnSpeed;
-        double rightSpeed = forwardSpeed + turnSpeed;
+        // System.out.println(forwardSpeed + " " + turnSpeed);
+        double leftSpeed = forwardSpeed + turnSpeed;
+        double rightSpeed = forwardSpeed - turnSpeed;
         frontLeftSwerveModule.setDriveMotorSpeed(leftSpeed);
         frontRightSwerveModule.setDriveMotorSpeed(leftSpeed);
         backLeftSwerveModule.setDriveMotorSpeed(rightSpeed);
@@ -58,9 +59,10 @@ public class DriveSubsystem extends SubsystemBase {
     //
     public SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
-        for (int i = 0; i < moduleStates.length; i++) {
-            moduleStates[i].angle = moduleStates[i].angle.unaryMinus();
-        }
+        // flip angles to convert from counterclockwise to clockwise
+        // for (int i = 0; i < moduleStates.length; i++) {
+        //     moduleStates[i].angle = moduleStates[i].angle.unaryMinus();
+        // }
         return moduleStates;
     }
 
@@ -72,12 +74,14 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getRotation2d());
+        // speeds in swerve are positive forward and positive left, so flip lateral speed
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, -lateralSpeed, turnSpeed, getRotation2d());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
     public void swerveDrive(double lateralSpeed, double longitudinalSpeed, double turnSpeed) {
-        SwerveModuleState[] moduleStates = getFieldCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
+        SwerveModuleState[] moduleStates = getRobotCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
+        // System.out.println(moduleStates[0] + " " + moduleStates[1] + " " + moduleStates[2] + " " + moduleStates[3]);
         frontLeftSwerveModule.setState(moduleStates[0]);
         frontRightSwerveModule.setState(moduleStates[1]);
         backLeftSwerveModule.setState(moduleStates[2]);
@@ -92,6 +96,26 @@ public class DriveSubsystem extends SubsystemBase {
         backLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
         backRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
     }
+
+    public void spin() {
+        frontLeftSwerveModule.setAngleMotorSpeed(0.1);
+        frontRightSwerveModule.setAngleMotorSpeed(0.1);
+        backLeftSwerveModule.setAngleMotorSpeed(0.1);
+        backRightSwerveModule.setAngleMotorSpeed(0.1);
+    }
+
+    /* counterclockwise spin
+     * FL: 36.28889098649009 0.697021484375 14.936174665178571 ﻿
+﻿﻿﻿﻿﻿﻿ FR: 15.108051809243896 0.702880859375 15.061732700892856 ﻿
+﻿﻿﻿﻿﻿﻿ BL: 14.861845649834244 0.69970703125 14.993722098214285 ﻿
+﻿﻿﻿﻿﻿﻿ BR: 36.17272555759822 0.68994140625 14.784458705357142 ﻿
+
+﻿﻿﻿﻿﻿﻿ FL: 37.78886609804092 0.767822265625 16.453334263392858 ﻿
+﻿﻿﻿﻿﻿﻿ FR: 16.608026920794728 0.77099609375 16.521344866071427 ﻿
+﻿﻿﻿﻿﻿﻿ BL: 16.3380116326303 0.762939453125 16.348702566964285 ﻿
+﻿﻿﻿﻿﻿﻿ BR: 37.69651222641553 0.755615234375 16.191755022321427 ﻿
+
+     */
 
     public void getEncoderValues() {
         System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());

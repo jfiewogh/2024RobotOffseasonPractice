@@ -42,13 +42,13 @@ public class AbsoluteEncoder {
 
         CANcoder encoder = new CANcoder(deviceId);
         CANcoderConfiguration CANcoderConfig = new CANcoderConfiguration();
-        MagnetSensorConfigs magnetSensorConfig = new MagnetSensorConfigs();
+        MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
         
-        magnetSensorConfig.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
-        magnetSensorConfig.withSensorDirection(SensorDirectionValue.Clockwise_Positive);
-        magnetSensorConfig.withMagnetOffset(offset);
+        magnetSensorConfigs.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1);
+        magnetSensorConfigs.withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+        magnetSensorConfigs.withMagnetOffset(offset);
 
-        CANcoderConfig.withMagnetSensor(magnetSensorConfig);
+        CANcoderConfig.withMagnetSensor(magnetSensorConfigs);
         encoder.getConfigurator().apply(CANcoderConfig);
 
         return encoder;

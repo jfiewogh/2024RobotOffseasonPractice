@@ -49,6 +49,11 @@ public class SwerveModule {
         driveMotor.set(normalizeSpeed(speed));
     }
 
+    // positive speed is counterclockwise
+    public void setAngleMotorSpeed(double speed) {
+        angleMotor.set(normalizeSpeed(speed));
+    }
+
     /**
      * This sets the SwerveModule to the desired state
      * @param state the desired speed and angle
@@ -56,6 +61,7 @@ public class SwerveModule {
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         setAngle(state.angle);
+        // optimize
         setDriveMotorSpeed(speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond);
     }
 
@@ -129,14 +135,12 @@ public class SwerveModule {
      * Turn the motor to the desired wheel angle
      * @param desiredAngle the desired wheel angle
      */
-    public void setAngle(Rotation2d desiredAngle) {
+    public double setAngle(Rotation2d desiredAngle) {
         double currentWheelAngleRadians = normalizeAngleRadians(motorToWheel(getAngleMotorRelativeEncoderRadians()));
         double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
         double wheelErrorRadians = optimizeErrorRadians(normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians));
-        
         double motorErrorRadians = wheelToMotor(wheelErrorRadians);
         double speed = convertErrorRadiansToSpeed(motorErrorRadians);
-
         angleMotor.set(speed);
     }
 
