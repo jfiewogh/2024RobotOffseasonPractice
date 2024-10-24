@@ -37,19 +37,8 @@ public class SwerveModule {
         angleMotorRelativeEncoder = angleMotor.getEncoder();
         
         // counterclockwise should be positive
-        angleMotorRelativeEncoder.setPositionConversionFactor(kPositionConversionFactor); // converts rotations to radians
-        /*
-         * FL: -0.07314016054881836 0.171875 3.683035714285714 ﻿
-﻿﻿﻿﻿﻿﻿ FR: 0.07730072759304932 -0.162109375 -3.473772321428571 ﻿
-﻿﻿﻿﻿﻿﻿ BL: -0.08969909093149418 0.200439453125 4.295131138392857 ﻿
-﻿﻿﻿﻿﻿﻿ BR: 0.07231618834600788 0.35888671875 7.6904296875 ﻿
-
-﻿﻿﻿﻿﻿﻿ FL: 0.06399162493340019 0.341552734375 7.318987165178571 ﻿
-﻿﻿﻿﻿﻿﻿ FR: 0.0024150638806174117 -0.3232421875 -6.926618303571428 ﻿
-﻿﻿﻿﻿﻿﻿ BL: 0.03557970758794426 0.40087890625 8.590262276785714 ﻿
-﻿﻿﻿﻿﻿﻿ BR: -6.317562758416651E-5 -0.27880859375 -5.974469866071428 ﻿
-
-         */
+        // converts rotations to radians
+        angleMotorRelativeEncoder.setPositionConversionFactor(kPositionConversionFactor);
 
         angleWheelAbsoluteEncoder = AbsoluteEncoder.createAbsoluteEncoder(config);
 
