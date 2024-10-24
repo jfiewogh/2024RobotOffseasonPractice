@@ -30,14 +30,14 @@ public class DriveCommand extends Command {
     public void execute() {
         switch (driveType) {
             case ARCADE:
-                driveSubsystem.arcadeDrive(controller.getLeftStickY() * 0.5, controller.getRightStickX() * 0.5);
+                DriveSubsystem.arcadeDrive(controller.getLeftStickY() * 0.5, controller.getRightStickX() * 0.5);
                 break;
             case SWERVE:
                 // System.out.println(controller.getLeftStickX() + " " + controller.getLeftStickY() + " " + controller.getRightStickX());
-                driveSubsystem.swerveDrive(controller.getLeftStickX(), controller.getLeftStickY(), controller.getRightStickX());
+                DriveSubsystem.swerveDrive(controller.getLeftStickX(), controller.getLeftStickY(), controller.getRightStickX());
                 break;
             default:
-                driveSubsystem.spin();
+                DriveSubsystem.spin();
                 break;
         }
     } 
