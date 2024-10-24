@@ -38,12 +38,17 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
+    // temporary, replace with odometry
+    private double longitudinalPosition = 0;
+    private double lateralPosition = 0;
+    private double kPositionP = 0.1; 
+
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
     public DriveSubsystem() {
         // sets the starting direction of the robot to be 0 degrees
         // doesn't work
-        // resetGyro();
+        resetGyro();
     }
     
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
@@ -63,7 +68,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Robot centric
     public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
+        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, -lateralSpeed, turnSpeed);
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
@@ -76,11 +81,25 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void swerveDrive(double lateralSpeed, double longitudinalSpeed, double turnSpeed) {
         SwerveModuleState[] moduleStates = getRobotCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
-        // System.out.println(moduleStates[0] + " " + moduleStates[1] + " " + moduleStates[2] + " " + moduleStates[3]);
-        frontLeftSwerveModule.setState(moduleStates[0]);
-        frontRightSwerveModule.setState(moduleStates[1]);
-        backLeftSwerveModule.setState(moduleStates[2]);
-        backRightSwerveModule.setState(moduleStates[3]);
+        frontLeftSwerveModule.setState(moduleStates[0], false);
+        frontRightSwerveModule.setState(moduleStates[1], false);
+        backLeftSwerveModule.setState(moduleStates[2], false);
+        backRightSwerveModule.setState(moduleStates[3], false);
+    }
+
+    public void swerveDriveTo(double desiredLongitudinalPosition, double desiredLateralPosition) {
+        double longitudinalError = desiredLongitudinalPosition - longitudinalPosition;
+        double lateralError = desiredLateralPosition - lateralPosition;
+        double angle = Math.atan2(longitudinalError, lateralError);
+
+        double speed = SwerveModule.normalizeSpeed(Math.hypot(lateralError * kPositionP, longitudinalError * kPositionP));
+        double longitudinalSpeed = speed * Math.sin(angle);
+        double lateralSpeed = speed * Math.cos(angle);
+
+        swerveDrive(lateralSpeed, longitudinalSpeed, 0);
+        
+        longitudinalPosition += longitudinalSpeed;
+        lateralPosition += lateralSpeed;
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {

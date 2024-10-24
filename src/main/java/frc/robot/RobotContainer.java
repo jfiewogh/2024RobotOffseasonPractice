@@ -32,6 +32,8 @@ public class RobotContainer {
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
+    private final DriveCommand driveCommand = new DriveCommand(driveSubsystem, controller);
+
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, controller));
@@ -43,6 +45,7 @@ public class RobotContainer {
         controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
         controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
         controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
+        controller.getButton(Button.Y).onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
 
         /* INTAKE */
         controller.getButton(Button.RB).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
@@ -56,8 +59,9 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
+            new AutonomousDriveCommand(driveSubsystem, 10, 5),
             new IntakeDeployCommand(intakeSubsystem, true),
-            new IntakeRollerCommand(intakeSubsystem, 0.3)        
+            new IntakeRollerCommand(intakeSubsystem, 0.3)
         );
     }
 }

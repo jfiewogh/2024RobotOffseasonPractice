@@ -17,9 +17,11 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
   public static final double kTau = Math.PI * 2;
 
+  public static final double kPeriodicDuration = 0.03; // 30 milliseconds
+
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(14);
-    public static final double kP = 0.05; // 0.1
+    public static final double kP = 0.04; // 0.1
     public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
     public static final double kMaxAngleMotorSpeed = 1;
   } 
