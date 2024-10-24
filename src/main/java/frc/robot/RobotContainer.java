@@ -8,7 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.Controller.Button;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -43,7 +43,7 @@ public class RobotContainer {
     private void configureBindings() { 
         // Test
         controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
-        controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
+        controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.printGyroValue()));
         controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
         controller.getButton(Button.Y).onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
 
@@ -59,7 +59,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
-            new AutonomousDriveCommand(driveSubsystem, 10, 5),
+            new AutonomousDriveCommand(driveSubsystem, 0, 0, Rotation2d.fromDegrees(90)),
             new IntakeDeployCommand(intakeSubsystem, true),
             new IntakeRollerCommand(intakeSubsystem, 0.3)
         );

@@ -47,16 +47,16 @@ public class SwerveModule {
 
     private static double getTurningAngleRadians(Translation2d location) {
         double turningAngleRadians = (Math.PI / 2) - getAngleRadiansFromComponents(location.getY(), location.getX());
-        return normalizeAngleRadians(turningAngleRadians);
+        return DriveModule.normalizeAngleRadiansSigned(turningAngleRadians);
     }
 
     public void setDriveMotorSpeed(double speed) {
-        driveMotor.set(normalizeSpeed(speed));
+        driveMotor.set(DriveModule.normalizeSpeed(speed));
     }
 
     // positive speed is counterclockwise
     public void setAngleMotorSpeed(double speed) {
-        angleMotor.set(normalizeSpeed(speed));
+        angleMotor.set(DriveModule.normalizeSpeed(speed));
     }
 
     /**
@@ -67,9 +67,9 @@ public class SwerveModule {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         double driveMotorSpeed = speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
 
-        double currentWheelAngleRadians = normalizeAngleRadians(motorToWheel(getAngleMotorRelativeEncoderRadians()));
+        double currentWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(DriveModule.motorToWheel(getAngleMotorRelativeEncoderRadians()));
         // 3.14
-        double desiredWheelAngleRadians = normalizeAngleRadians(state.angle.getRadians());
+        double desiredWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(state.angle.getRadians());
         // -3.14
         // -6.28
         
@@ -79,11 +79,11 @@ public class SwerveModule {
         if (printData && Math.abs(wheelErrorRadians) > 0.1) System.out.println(currentWheelAngleRadians + " " + desiredWheelAngleRadians + " " + wheelErrorRadians);
 
         if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
-            wheelErrorRadians = normalizeAngleRadians(desiredWheelAngleRadians + Math.PI - currentWheelAngleRadians);
+            wheelErrorRadians = DriveModule.normalizeAngleRadiansSigned(desiredWheelAngleRadians + Math.PI - currentWheelAngleRadians);
             driveMotorSpeed = -driveMotorSpeed;
         }
 
-        double motorErrorRadians = wheelToMotor(wheelErrorRadians);
+        double motorErrorRadians = DriveModule.wheelToMotor(wheelErrorRadians);
         double speed = convertErrorRadiansToSpeed(motorErrorRadians);
 
         angleMotor.set(flipMotor ? -speed : speed);
@@ -110,51 +110,13 @@ public class SwerveModule {
         double speedX = driveSpeedX + turnSpeedX;
         // Determine and return angle and total speed
         double desiredAngle = Math.atan2(speedY, speedX);
-        double speed = normalizeSpeed(Math.hypot(speedX, speedY));
+        double speed = DriveModule.normalizeSpeed(Math.hypot(speedX, speedY));
         return new double[] {desiredAngle, speed};
     }
 
     // Convert the error radians to speed
     private static double convertErrorRadiansToSpeed(double errorRadians) {
-        return normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kP);
-    }
-
-    /**
-     * Limit the speed to the range -maxSpeed to maxSpeed
-     * @param speed the unnormalized speed
-     * @return the normalized speed
-     */
-    public static double normalizeSpeed(double speed) {
-        if (speed > SwerveConstants.kMaxAngleMotorSpeed) {
-            return SwerveConstants.kMaxAngleMotorSpeed;
-        } else if (speed < -SwerveConstants.kMaxAngleMotorSpeed) {
-            return -SwerveConstants.kMaxAngleMotorSpeed;
-        }
-        return speed;
-    }
-
-    /**
-     * Optimize the error so that the motor moves the shorter direction
-     * If the error is greater than pi, the other direction is shorter, so flip the angle
-     * @param errorRadians the difference from the desired angle and the current angle
-     * @return the optimized error
-     */
-    private static double optimizeErrorRadians(double errorRadians) {
-        return errorRadians > Math.PI ? errorRadians = -(Constants.kTau - errorRadians) : errorRadians;
-    }
-
-    private static double wheelToMotor(double value) {
-        return value / SwerveConstants.kAngleMotorGearRatio;
-    }
-    private static double motorToWheel(double value) {
-        return value * SwerveConstants.kAngleMotorGearRatio;
-    }
-
-    private static double rotationsToRadians(double rotations) {
-        return rotations * Constants.kTau;
-    }
-    private static double radiansToRotations(double radians) {
-        return radians / Constants.kTau;
+        return DriveModule.normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kP);
     }
 
     /**
@@ -162,10 +124,10 @@ public class SwerveModule {
      * @param desiredAngle the desired wheel angle
      */
     public void setAngle(Rotation2d desiredAngle) {
-        double currentWheelAngleRadians = normalizeAngleRadians(motorToWheel(getAngleMotorRelativeEncoderRadians()));
-        double desiredWheelAngleRadians = normalizeAngleRadians(desiredAngle.getRadians());
-        double wheelErrorRadians = optimizeErrorRadians(normalizeAngleRadians(desiredWheelAngleRadians - currentWheelAngleRadians));
-        double motorErrorRadians = wheelToMotor(wheelErrorRadians);
+        double currentWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(DriveModule.motorToWheel(getAngleMotorRelativeEncoderRadians()));
+        double desiredWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(desiredAngle.getRadians());
+        double wheelErrorRadians = DriveModule.optimizeErrorRadians(DriveModule.normalizeAngleRadiansSigned(desiredWheelAngleRadians - currentWheelAngleRadians));
+        double motorErrorRadians = DriveModule.wheelToMotor(wheelErrorRadians);
         double speed = convertErrorRadiansToSpeed(motorErrorRadians);
         angleMotor.set(speed);
     }
@@ -178,24 +140,12 @@ public class SwerveModule {
     }
     // Return the angle motor relative encoder value in rotations
     public double getAngleMotorRelativeEncoderRotations() {
-        return radiansToRotations(getAngleMotorRelativeEncoderRadians());
+        return DriveModule.radiansToRotations(getAngleMotorRelativeEncoderRadians());
     }
 
     // Return the angle in radians formed by the x and y components
     public static double getAngleRadiansFromComponents(double y, double x) {
-        return normalizeAngleRadians(Math.atan2(y, x));
-    }
-
-    /**
-     * Convert the angle to be between -pi and pi
-     * @param angleRadians the unnormalized angle radians
-     * @return the normalized angle radians
-     */
-    public static double normalizeAngleRadians(double angleRadians) {
-        while (angleRadians < -Math.PI || angleRadians > Math.PI) {
-            angleRadians += angleRadians < -Math.PI ? Constants.kTau : -Constants.kTau;
-        }
-        return angleRadians;
+        return DriveModule.normalizeAngleRadiansSigned(Math.atan2(y, x));
     }
 
     // Return the angle wheel absolute encoder value in rotations
@@ -204,11 +154,11 @@ public class SwerveModule {
     }
     // Return the angle motor absolute encoder value in rotations
     public double getAngleMotorAbsoluteEncoderRotations() {
-        return wheelToMotor(getAngleWheelAbsoluteEncoderRotations());
+        return DriveModule.wheelToMotor(getAngleWheelAbsoluteEncoderRotations());
     }
     // Return the angle motor absolute encoder value in radians with offset
     public double getAngleMotorAbsoluteEncoderRadians() {
-        return rotationsToRadians(getAngleMotorAbsoluteEncoderRotations());
+        return DriveModule.rotationsToRadians(getAngleMotorAbsoluteEncoderRotations());
     }
 
     // Set the relative encoder values to default

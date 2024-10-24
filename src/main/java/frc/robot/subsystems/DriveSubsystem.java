@@ -11,7 +11,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
+import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
+import frc.robot.Constants;
 
 // problems
 // FIXED: when changing the angle, the gear makes a weird noise
@@ -38,10 +39,14 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
     private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
 
-    // temporary, replace with odometry
+    // temporary, should make better organized, or replace with odometry
     private double longitudinalPosition = 0;
     private double lateralPosition = 0;
-    private double kPositionP = 0.1; 
+    private final double kPositionP = 0.1; 
+    private final double kRotationP = 2;
+
+    // positive is counterclockwise
+    private final double gyroOffsetDegrees = 0;
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
@@ -75,7 +80,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
         // speeds in swerve are positive forward and positive left, so flip lateral speed
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, -lateralSpeed, turnSpeed, getRotation2d());
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, -lateralSpeed, turnSpeed, getGyroRotation2d());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
@@ -87,16 +92,22 @@ public class DriveSubsystem extends SubsystemBase {
         backRightSwerveModule.setState(moduleStates[3], false);
     }
 
-    public void swerveDriveTo(double desiredLongitudinalPosition, double desiredLateralPosition) {
+    public void swerveDriveTo(double desiredLongitudinalPosition, double desiredLateralPosition, Rotation2d desiredRotation) {
         double longitudinalError = desiredLongitudinalPosition - longitudinalPosition;
         double lateralError = desiredLateralPosition - lateralPosition;
-        double angle = Math.atan2(longitudinalError, lateralError);
+        double driveAngle = Math.atan2(longitudinalError, lateralError);
+        double driveSpeed = DriveModule.normalizeSpeed(Math.hypot(lateralError * kPositionP, longitudinalError * kPositionP));
+        double longitudinalSpeed = driveSpeed * Math.sin(driveAngle);
+        double lateralSpeed = driveSpeed * Math.cos(driveAngle);
 
-        double speed = SwerveModule.normalizeSpeed(Math.hypot(lateralError * kPositionP, longitudinalError * kPositionP));
-        double longitudinalSpeed = speed * Math.sin(angle);
-        double lateralSpeed = speed * Math.cos(angle);
+        Rotation2d currentRotation = getGyroRotation2d();
+        double desiredRotationRadians = DriveModule.normalizeAngleRadiansSigned(desiredRotation.getRadians());
+        double currentRotationRadians = DriveModule.normalizeAngleRadiansSigned(currentRotation.getRadians()); 
+        double rotationErrorRadians = DriveModule.optimizeErrorRadians(desiredRotationRadians - currentRotationRadians);
+        double rotationSpeed = DriveModule.normalizeSpeed(rotationErrorRadians / Constants.kTau * kRotationP);
+        System.out.println(rotationErrorRadians + " " + rotationSpeed);
 
-        swerveDrive(lateralSpeed, longitudinalSpeed, 0);
+        swerveDrive(lateralSpeed, longitudinalSpeed, rotationSpeed);
         
         longitudinalPosition += longitudinalSpeed;
         lateralPosition += lateralSpeed;
@@ -125,16 +136,16 @@ public class DriveSubsystem extends SubsystemBase {
         System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
     }
 
-    public Rotation2d getRotation2d() {
+    public Rotation2d getGyroRotation2d() {
         // positive gyro angle is clockwise
         // positive swerve drive angle is counterclockwise
         // so flip the sign
         // rotate origin 90 degrees clockwise
-        return Rotation2d.fromDegrees(-gyro.getAngle() + 90);
+        return Rotation2d.fromDegrees(-gyro.getAngle() - gyroOffsetDegrees);
     }
 
-    public void getGyroValue() {
-        System.out.println(getRotation2d());
+    public void printGyroValue() {
+        System.out.println(getGyroRotation2d());
     }
 
     public void resetGyro() {
