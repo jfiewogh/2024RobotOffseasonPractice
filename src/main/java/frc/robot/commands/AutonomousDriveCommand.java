@@ -23,7 +23,7 @@ public class AutonomousDriveCommand extends Command {
 
     @Override
     public void execute() {
-        DriveSubsystem.swerveDriveTo(longitudinalPosition, lateralPosition, angle);
+        driveSubsystem.swerveDrivePosition(longitudinalPosition, lateralPosition, angle);
     }
 
     @Override

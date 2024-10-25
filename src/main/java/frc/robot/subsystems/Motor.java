@@ -1,44 +1,33 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import frc.robot.Constants;
 
 public class Motor {
-    private final TalonFX driveMotor;
-    private final TalonFX turnMotor;
+    private final CANSparkMax motor;
+    private final RelativeEncoder encoder;
+    private final Boolean isReversed;
 
-    private final double P = 0.2;
-    private final double MAX_SPEED_METERS_PER_SECOND = Units.feetToMeters(14);
-
-    public Motor(int driveMotorDeviceId, int turnMotorDeviceId) {
-        driveMotor = new TalonFX(driveMotorDeviceId);
-        turnMotor = new TalonFX(turnMotorDeviceId);
+    public Motor(int deviceId, Boolean reverse) {
+        motor = new CANSparkMax(deviceId, MotorType.kBrushless);
+        encoder = motor.getEncoder();
+        isReversed = reverse;
     }
 
-    public TalonFX getDriveMotor() {
-        return driveMotor;
+    public double getPositionRotations() {
+        double position = encoder.getPosition();
+        return isReversed ? -position : position;
+    }
+    public double getPositionRadians() {
+        return DriveModule.rotationsToRadians(getPositionRotations());
+    }
+    public void setEncoderPosition(double position) {
+        encoder.setPosition(position);
     }
 
-    public TalonFX getTurnMotor() {
-        return turnMotor;
-    }
-
-    public void setState(SwerveModuleState state) {
-        double speedMetersPerSecond = state.speedMetersPerSecond;
-        driveMotor.set(speedMetersPerSecond / MAX_SPEED_METERS_PER_SECOND);
-        setAngle(state.angle);
-    }
-
-    public void setAngle(Rotation2d desiredAngle) {
-        Rotation2d currentAngle = Rotation2d.fromRotations(turnMotor.getPosition().getValue());
-        double errorRadians = desiredAngle.getRadians() - currentAngle.getRadians();
-        if (Math.abs(errorRadians) < Math.PI) {
-            errorRadians = -errorRadians;
-        }
-        double speed = errorRadians * P;
-        turnMotor.set(speed);
+    public void set(double relativeSpeed) {
+        motor.set(isReversed ? -relativeSpeed : relativeSpeed);
     }
 }

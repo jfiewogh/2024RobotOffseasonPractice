@@ -23,6 +23,9 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(14);
     public static final double kP = 0.04; // 0.1
     public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
+    public static final double kDriveMotorGearRatio = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(3.5);
+    public static final double kWheelRadiusMeters = kWheelDiameterMeters / 2;
     public static final double kMaxAngleMotorSpeed = 1;
   } 
 
@@ -39,18 +42,10 @@ public final class Constants {
      * set the offsets to the negative of the recorded values
      * (To see the offsets, you have to run twice for some reason.)
      */
-
-    /* 2024 Robot Code Values
-    FrontLeftModule(Constants.canIdFrontLeftCancoder, false, -1.7441, -1.1520),
-    FrontRightModule(Constants.canIdFrontRightCancoder, false, 2.0678, 2.0816 - (Math.PI)),
-    BackLeftModule(Constants.canIdBackLeftCancoder, false, -2.0801 + (Math.PI), -0.9664),
-    BackRightModule(Constants.canIdBackRightCancoder, false, 2.8041, -0.5906);
-    */
-
-    public static final double kFrontLeftOffset = -1.7441 / Constants.kTau; // (0.732666015625);
-    public static final double kFrontRightOffset = 2.0678 / Constants.kTau; // (0.328125);
-    public static final double kBackLeftOffset = (-2.0801 + Math.PI) / Constants.kTau; // (0.1689453125);
-    public static final double kBackRightOffset = 2.8041 / Constants.kTau; // (0.45458984375
+    public static final double kFrontLeftOffset = -1.7441 / Constants.kTau;
+    public static final double kFrontRightOffset = 2.0678 / Constants.kTau;
+    public static final double kBackLeftOffset = (-2.0801 + Math.PI) / Constants.kTau;
+    public static final double kBackRightOffset = 2.8041 / Constants.kTau;
   }
 
   public static class MotorConstants {

@@ -42,8 +42,8 @@ public class RobotContainer {
 
     private void configureBindings() { 
         // Test
-        controller.getButton(Button.X).onTrue(new InstantCommand(() -> DriveSubsystem.getEncoderValues()));
-        controller.getButton(Button.A).onTrue(new InstantCommand(() -> DriveSubsystem.printGyroValue()));
+        controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.printEncoderValues()));
+        controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.printGyroValue()));
         controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
         controller.getButton(Button.Y).onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
 
@@ -53,7 +53,7 @@ public class RobotContainer {
         controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3));
         controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3));
 
-        controller.getButton(Button.Start).onTrue(new InstantCommand(() -> DriveSubsystem.resetGyro()));
+        controller.getButton(Button.Start).onTrue(new InstantCommand(() -> driveSubsystem.resetGyro()));
 
         // new JoystickButton(joystick, Button.B2.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(-1)));
         // new JoystickButton(joystick, Button.B3.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(1)));

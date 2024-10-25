@@ -4,11 +4,18 @@ import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 
 public class DriveModule {
-    public static double wheelToMotor(double value) {
+    public static double angleWheelToMotor(double value) {
         return value / SwerveConstants.kAngleMotorGearRatio;
     }
-    public static double motorToWheel(double value) {
+    public static double angleMotorToWheel(double value) {
         return value * SwerveConstants.kAngleMotorGearRatio;
+    }
+
+    public static double driveWheelToMotor(double value) {
+        return value / SwerveConstants.kDriveMotorGearRatio;
+    }
+    public static double driveMotorToWheel(double value) {
+        return value * SwerveConstants.kDriveMotorGearRatio;
     }
 
     public static double rotationsToRadians(double rotations) {
