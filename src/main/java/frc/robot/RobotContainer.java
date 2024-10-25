@@ -9,13 +9,9 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.Controller.Button;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,7 +26,7 @@ public class RobotContainer {
 
     private final DriveSubsystem driveSubsystem = new DriveSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+    // private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
     private final DriveCommand driveCommand = new DriveCommand(driveSubsystem, controller);
 
