@@ -58,14 +58,14 @@ public class SwerveModule {
         double wheelErrorRadians = desiredWheelAngleRadians - currentWheelAngleRadians;
 
         if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
-            wheelErrorRadians = DriveModule.normalizeAngleRadiansSigned(desiredWheelAngleRadians + Math.PI - currentWheelAngleRadians);
+            wheelErrorRadians = DriveModule.normalizeAngleRadiansSigned(wheelErrorRadians + Math.PI);
             driveMotorSpeed = -driveMotorSpeed;
         }
 
         double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
         double speed = convertErrorRadiansToSpeed(motorErrorRadians);
 
-        angleMotor.set(flipMotor ? -speed : speed);
+        angleMotor.set(speed);
 
         setDriveMotorSpeed(driveMotorSpeed);
     }

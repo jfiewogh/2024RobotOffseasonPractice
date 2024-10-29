@@ -62,7 +62,7 @@ public class DriveModule {
     }
     public static double normalizeAngleRadiansUnsigned(double angleRadians) {
         while (angleRadians < 0 || angleRadians > Constants.kTau) {
-            angleRadians += angleRadians < -Math.PI ? Constants.kTau : -Constants.kTau;
+            angleRadians += angleRadians < 0 ? Constants.kTau : -Constants.kTau;
         }
         return angleRadians;
     }

@@ -29,7 +29,7 @@ public class DriveSubsystem extends SubsystemBase {
     private static final Translation2d backLeftLocation = new Translation2d(-width/2, length/2);
     private static final Translation2d backRightLocation = new Translation2d(-width/2, -length/2);
 
-    private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics();
+    private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
     private static final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
     private static final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
@@ -54,7 +54,7 @@ public class DriveSubsystem extends SubsystemBase {
     private static final double gyroOffsetDegrees = 0;
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
-    
+
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroRotation2d(), getSwerveModulePositions());
 
     public DriveSubsystem() {}
