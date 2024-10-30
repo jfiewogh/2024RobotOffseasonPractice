@@ -39,6 +39,7 @@ public class DriveCommand extends Command {
                 driveSubsystem.spin();
                 break;
         }
+        driveSubsystem.updateOdometer();
     } 
 
     @Override

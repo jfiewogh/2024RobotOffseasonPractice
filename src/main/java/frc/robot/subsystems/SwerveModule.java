@@ -63,7 +63,7 @@ public class SwerveModule {
         }
 
         double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
-        double speed = convertErrorRadiansToSpeed(motorErrorRadians);
+        double speed = DriveModule.convertErrorRadiansToSpeed(motorErrorRadians);
 
         angleMotor.set(speed);
 
@@ -93,11 +93,6 @@ public class SwerveModule {
         return new double[] {desiredAngle, speed};
     }
 
-    // Convert the error radians to speed
-    private static double convertErrorRadiansToSpeed(double errorRadians) {
-        return DriveModule.normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kP);
-    }
-
     /**
      * Turn the motor to the desired wheel angle
      * @param desiredAngle the desired wheel angle
@@ -107,7 +102,7 @@ public class SwerveModule {
         double desiredWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(desiredAngle.getRadians());
         double wheelErrorRadians = DriveModule.optimizeErrorRadians(DriveModule.normalizeAngleRadiansSigned(desiredWheelAngleRadians - currentWheelAngleRadians));
         double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
-        double speed = convertErrorRadiansToSpeed(motorErrorRadians);
+        double speed = DriveModule.convertErrorRadiansToSpeed(motorErrorRadians);
         angleMotor.set(speed);
     }
 
@@ -134,7 +129,7 @@ public class SwerveModule {
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
             DriveModule.driveMotorToWheel(driveMotor.getPositionRadians()) * SwerveConstants.kWheelRadiusMeters,
-            Rotation2d.fromRadians(angleMotor.getPositionRadians())
+            Rotation2d.fromRadians(DriveModule.angleMotorToWheel(angleMotor.getPositionRadians()))
         );
     }
 }

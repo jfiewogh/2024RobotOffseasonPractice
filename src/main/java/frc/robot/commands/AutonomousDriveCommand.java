@@ -30,6 +30,6 @@ public class AutonomousDriveCommand extends Command {
     public void end(boolean interrupted) {}
 
     public boolean isFinished() {
-        return false;
+        return driveSubsystem.isAtPosition(longitudinalPosition, lateralPosition);
     }
 }

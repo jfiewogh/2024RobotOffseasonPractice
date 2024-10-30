@@ -40,8 +40,11 @@ public class RobotContainer {
         // Test
         controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.printEncoderValues()));
         controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.printGyroValue()));
-        controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
+        // controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
         controller.getButton(Button.Y).onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
+        controller.getButton(Button.B).onTrue(new InstantCommand(() -> driveSubsystem.printOdometerPose()));
+
+        controller.getButton(Button.Start).onTrue(new InstantCommand(() -> driveSubsystem.reset()));
 
         /* INTAKE */
         controller.getButton(Button.RB).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
@@ -49,15 +52,13 @@ public class RobotContainer {
         controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3));
         controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3));
 
-        controller.getButton(Button.Start).onTrue(new InstantCommand(() -> driveSubsystem.resetGyro()));
-
         // new JoystickButton(joystick, Button.B2.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(-1)));
         // new JoystickButton(joystick, Button.B3.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(1)));
     }
 
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
-            new AutonomousDriveCommand(driveSubsystem, 100, 60, Rotation2d.fromDegrees(90)),
+            new AutonomousDriveCommand(driveSubsystem, 1, 1, Rotation2d.fromDegrees(0)),
             new IntakeDeployCommand(intakeSubsystem, true),
             new IntakeRollerCommand(intakeSubsystem, 0.3)
         );

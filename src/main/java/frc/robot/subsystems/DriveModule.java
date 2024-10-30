@@ -31,10 +31,10 @@ public class DriveModule {
      * @return the normalized speed
      */
     public static double normalizeSpeed(double speed) {
-        if (speed > SwerveConstants.kMaxAngleMotorSpeed) {
-            return SwerveConstants.kMaxAngleMotorSpeed;
-        } else if (speed < -SwerveConstants.kMaxAngleMotorSpeed) {
-            return -SwerveConstants.kMaxAngleMotorSpeed;
+        if (speed > 1) {
+            return 1;
+        } else if (speed < -1) {
+            return -1;
         }
         return speed;
     }
@@ -65,5 +65,9 @@ public class DriveModule {
             angleRadians += angleRadians < 0 ? Constants.kTau : -Constants.kTau;
         }
         return angleRadians;
+    }
+
+    public static double convertErrorRadiansToSpeed(double errorRadians) {
+        return DriveModule.normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kRotationP);
     }
 }

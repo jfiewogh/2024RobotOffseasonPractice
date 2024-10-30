@@ -42,8 +42,9 @@ public class Controller {
     }
 
     // Right is positive
+    // right now, flipped
     public double getLeftStickX() {
-        return joystick.getRawAxis(0);
+        return -joystick.getRawAxis(0);
     }
     
     // Up is positive
@@ -53,6 +54,7 @@ public class Controller {
     
     // Right is positive
     // but I have to flip this for some reason, because turn is inversed
+    // right now, flipped
     public double getRightStickX() {
         return -joystick.getRawAxis(2);
     }
