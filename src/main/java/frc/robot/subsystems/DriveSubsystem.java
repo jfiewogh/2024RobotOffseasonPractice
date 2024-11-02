@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
-import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 
 // problems
@@ -48,7 +47,7 @@ public class DriveSubsystem extends SubsystemBase {
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     // positive is counterclockwise
-    private static final double gyroOffsetDegrees = 90;
+    private static final double gyroOffsetDegrees = 0;
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
@@ -72,14 +71,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Robot centric
     public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, -lateralSpeed, turnSpeed);
+        ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
-        // speeds in swerve are positive forward and positive left, so flip lateral speed
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, -lateralSpeed, turnSpeed, getGyroRotation());
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getGyroRotation());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
