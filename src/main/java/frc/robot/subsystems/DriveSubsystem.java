@@ -17,10 +17,6 @@ import com.kauailabs.navx.frc.AHRS;
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
 import frc.robot.Constants.SwerveConstants;
 
-// problems
-// FIXED: when changing the angle, the gear makes a weird noise
-// sometimes the wheels are not aligned at the right angle, slightly off
-
 public class DriveSubsystem extends SubsystemBase {
     private static final double width = Units.inchesToMeters(19.75);
     private static final double length = Units.inchesToMeters(19.75);
@@ -53,8 +49,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroRotation(), getSwerveModulePositions());
 
-    public DriveSubsystem() {}
-    
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
@@ -72,7 +66,8 @@ public class DriveSubsystem extends SubsystemBase {
     // Robot centric
     public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
         ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
-        return getModuleStatesFromChassisSpeeds(speeds);
+        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getGyroRotation());
+        return getModuleStatesFromChassisSpeeds(robotRelativeSpeeds);
     }
 
     // Field centric
@@ -137,6 +132,7 @@ public class DriveSubsystem extends SubsystemBase {
         return Rotation2d.fromDegrees(-gyro.getAngle() - gyroOffsetDegrees);
     }
 
+    // counterclockwise is positive
     public Rotation2d getNotOffsetGyroRotation() {
         return Rotation2d.fromDegrees(-gyro.getAngle());
     }
@@ -145,6 +141,7 @@ public class DriveSubsystem extends SubsystemBase {
         return odometer.getPoseMeters();
     }
 
+    // PRINT
     public void printGyroValue() {
         System.out.println(getGyroRotation());
     }

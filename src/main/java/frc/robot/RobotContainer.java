@@ -58,7 +58,12 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
-            new AutonomousDriveCommand(driveSubsystem, 1, 1, Rotation2d.fromDegrees(0)),
+            // Drive
+            new AutonomousDriveCommand(driveSubsystem, 0, 0, 0),
+            new AutonomousDriveCommand(driveSubsystem, 0.3, 0, 0),
+            new AutonomousDriveCommand(driveSubsystem, 1, 0, 0),
+            new AutonomousDriveCommand(driveSubsystem, 1.2, 0, 0),
+            // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
             new IntakeRollerCommand(intakeSubsystem, 0.3)
         );

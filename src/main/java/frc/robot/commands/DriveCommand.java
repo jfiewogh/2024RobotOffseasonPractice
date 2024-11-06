@@ -2,18 +2,21 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Controller;
+import frc.robot.Constants.DriveConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveCommand extends Command {
     private enum DriveType {
-        ARCADE, SWERVE, NONE;
+        ARCADE, 
+        SWERVE, 
+        NONE; // spins the motor
     }
 
     private final DriveSubsystem driveSubsystem;
     private final Controller controller;
 
-    private final DriveType driveType = DriveType.SWERVE;
+    private final DriveType driveType = DriveType.NONE;
 
     public DriveCommand(DriveSubsystem subsystem, Controller controller) {
         driveSubsystem = subsystem;
@@ -30,10 +33,10 @@ public class DriveCommand extends Command {
     public void execute() {
         switch (driveType) {
             case ARCADE:
-                driveSubsystem.arcadeDrive(controller.getLeftStickY() * 0.5, controller.getRightStickX() * 0.5);
+                driveSubsystem.arcadeDrive(getLeftStickYSpeed(), controller.getRightStickX());
                 break;
             case SWERVE:
-                driveSubsystem.swerveDriveSpeeds(controller.getLeftStickX(), controller.getLeftStickY(), controller.getRightStickX());
+                driveSubsystem.swerveDriveSpeeds(getLeftStickXSpeed(), controller.getLeftStickY(), controller.getRightStickX());
                 break;
             default:
                 driveSubsystem.spin();
@@ -41,6 +44,13 @@ public class DriveCommand extends Command {
         }
         driveSubsystem.updateOdometer();
     } 
+
+    public double getLeftStickXSpeed() {
+        return controller.getLeftStickX() * DriveConstants.kMaxDriveSpeed;
+    }
+    public double getLeftStickYSpeed() {
+        return controller.getLeftStickY() * DriveConstants.kMaxDriveSpeed;
+    }
 
     @Override
     public void end(boolean interrupted) {

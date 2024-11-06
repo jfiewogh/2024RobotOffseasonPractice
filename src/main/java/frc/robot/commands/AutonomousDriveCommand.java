@@ -10,11 +10,11 @@ public class AutonomousDriveCommand extends Command {
     private final double lateralPosition;
     private final Rotation2d angle;
 
-    public AutonomousDriveCommand(DriveSubsystem subsystem, double longitudinalPosition, double lateralPosition, Rotation2d angle) {
+    public AutonomousDriveCommand(DriveSubsystem subsystem, double longitudinalPosition, double lateralPosition, double angleDegrees) {
         driveSubsystem = subsystem;
         this.longitudinalPosition = longitudinalPosition;
         this.lateralPosition = lateralPosition;
-        this.angle = angle;
+        this.angle = Rotation2d.fromDegrees(angleDegrees);
         addRequirements(subsystem);
     }
 
@@ -29,6 +29,7 @@ public class AutonomousDriveCommand extends Command {
     @Override
     public void end(boolean interrupted) {}
 
+    @Override
     public boolean isFinished() {
         return driveSubsystem.isAtPosition(longitudinalPosition, lateralPosition);
     }
