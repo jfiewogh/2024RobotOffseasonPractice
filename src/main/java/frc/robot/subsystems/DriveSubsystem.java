@@ -72,9 +72,14 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
+        if (relativeLateralSpeed < 0.01) relativeLateralSpeed = 0;
+        if (relativeLongitundalSpeed < 0.01) relativeLongitundalSpeed = 0;
+        if (relativeRotationSpeed < 0.01) relativeRotationSpeed = 0;
+
         double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
+
         SwerveModuleState[] moduleStates = getFieldCentricModuleStates(lateralSpeed, longitundalSpeed, rotationSpeed);
         frontLeftModule.setState(moduleStates[0]);
         frontRightModule.setState(moduleStates[1]);
@@ -107,6 +112,13 @@ public class DriveSubsystem extends SubsystemBase {
         frontRightModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
         backLeftModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
         backRightModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+    }
+
+    public void drive() {
+        frontLeftModule.setDriveMotorSpeed(0.1);
+        frontRightModule.setDriveMotorSpeed(0.1);
+        backLeftModule.setDriveMotorSpeed(0.1);
+        backRightModule.setDriveMotorSpeed(0.1);
     }
 
     public void spin() {

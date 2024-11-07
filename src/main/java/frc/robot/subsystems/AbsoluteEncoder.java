@@ -37,18 +37,15 @@ public class AbsoluteEncoder {
     }
     
     private final CANcoder absoluteEncoder;
-    private final Boolean reversed;
 
-    public AbsoluteEncoder(EncoderConfig config, Boolean reversed) {
-        this.reversed = reversed;
-
+    public AbsoluteEncoder(EncoderConfig config, SensorDirectionValue directionValue) {
         absoluteEncoder = new CANcoder(config.getDeviceId());
 
         CANcoderConfiguration CANcoderConfig = new CANcoderConfiguration();
         MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
 
         magnetSensorConfigs.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf);
-        magnetSensorConfigs.withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+        magnetSensorConfigs.withSensorDirection(directionValue);
         magnetSensorConfigs.withMagnetOffset(config.getOffset()); // don't flip offset because joystick is flipped, I think
 
         CANcoderConfig.withMagnetSensor(magnetSensorConfigs);
@@ -56,7 +53,6 @@ public class AbsoluteEncoder {
     }
 
     public double getPositionRotations() {
-        double position = absoluteEncoder.getAbsolutePosition().getValueAsDouble();
-        return reversed ? -position : position;
+        return absoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
 }

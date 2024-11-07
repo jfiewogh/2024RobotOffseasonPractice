@@ -16,14 +16,14 @@ public class Motor {
     }
 
     public double getPositionRotations() {
-        double position = encoder.getPosition();
-        return isReversed ? -position : position;
+        return isReversed ? -encoder.getPosition() : encoder.getPosition();
     }
     public double getPositionRadians() {
         return DriveModule.rotationsToRadians(getPositionRotations());
     }
+    
     public void setEncoderPosition(double position) {
-        encoder.setPosition(position);
+        encoder.setPosition(isReversed ? -position : position);
     }
 
     public void set(double relativeSpeed) {

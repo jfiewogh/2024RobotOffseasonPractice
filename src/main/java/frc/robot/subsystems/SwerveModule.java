@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -22,7 +24,8 @@ public class SwerveModule {
         driveMotor = new Motor(driveMotorDeviceId, false);
         angleMotor = new Motor(angleMotorDeviceId, flipMotor);
 
-        wheelAngleAbsoluteEncoder = new AbsoluteEncoder(config, flipMotor);
+        // for some reason, clockwise means counterclockwise positive
+        wheelAngleAbsoluteEncoder = new AbsoluteEncoder(config, SensorDirectionValue.CounterClockwise_Positive);
 
         turnAngleRadians = getTurningAngleRadians(location); // only used for alternative swerve
 
@@ -122,7 +125,7 @@ public class SwerveModule {
         double r1 = angleMotor.getPositionRotations();
         double a1 = wheelAngleAbsoluteEncoder.getPositionRotations();
         double a2 = DriveModule.angleWheelToMotor(a1);
-        System.out.print("R1 " + String.format("%.3f", r1) + ", A1 " + String.format("%.3f", a1) + ", A2 " + String.format("%.3f", a2));    
+        System.out.println("R1 " + String.format("%.3f", r1) + ", A1 " + String.format("%.3f", a1) + ", A2 " + String.format("%.3f", a2));    
     }
 
     // meters

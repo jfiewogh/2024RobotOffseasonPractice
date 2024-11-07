@@ -8,13 +8,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveCommand extends Command {
     private enum DriveType {
-        ARCADE, SWERVE, NONE; // spins the motor
+        ARCADE, 
+        SWERVE, 
+        DRIVE, // spins the drive motors
+        SPIN; // spins the angle motors
     }
 
     private final DriveSubsystem driveSubsystem;
     private final Controller controller;
 
-    private final DriveType driveType = DriveType.NONE;
+    private final DriveType driveType = DriveType.SWERVE;
 
     public DriveCommand(DriveSubsystem subsystem, Controller controller) {
         driveSubsystem = subsystem;
@@ -36,7 +39,10 @@ public class DriveCommand extends Command {
             case SWERVE:
                 driveSubsystem.swerveDriveSpeeds(getLeftStickXSpeed(), controller.getLeftStickY(), controller.getRightStickX());
                 break;
-            default:
+            case DRIVE:
+                driveSubsystem.drive();
+                break;
+            case SPIN:
                 driveSubsystem.spin();
                 break;
         }
