@@ -28,15 +28,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private static final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
-    private static final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
-    private static final EncoderConfig backLeftConfig = EncoderConfig.BACK_LEFT;
-    private static final EncoderConfig backRightConfig = EncoderConfig.BACK_RIGHT;
-
-    private final SwerveModule frontLeftModule = new SwerveModule(1, 2, frontLeftLocation, frontLeftConfig);
-    private final SwerveModule frontRightModule = new SwerveModule(3, 4, frontRightLocation, frontRightConfig);
-    private final SwerveModule backLeftModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
-    private final SwerveModule backRightModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
+    private final SwerveModule frontLeftModule = new SwerveModule(1, 2, frontLeftLocation, EncoderConfig.FRONT_LEFT);
+    private final SwerveModule frontRightModule = new SwerveModule(3, 4, frontRightLocation, EncoderConfig.FRONT_RIGHT);
+    private final SwerveModule backLeftModule = new SwerveModule(5, 6, backLeftLocation, EncoderConfig.BACK_LEFT);
+    private final SwerveModule backRightModule = new SwerveModule(7, 8, backRightLocation, EncoderConfig.BACK_RIGHT);
 
     private static final double kPositionP = 0.1; 
     private static final double kRotationP = 2;
@@ -121,20 +116,11 @@ public class DriveSubsystem extends SubsystemBase {
         backRightModule.setAngleMotorSpeed(0.1);
     }
 
-    public void printEncoderValues() {
-        frontLeftModule.printEncoderPositions("FL");
-        frontRightModule.printEncoderPositions("FR");
-        backLeftModule.printEncoderPositions("BL");
-        backRightModule.printEncoderPositions("BR");
-    }
-
     public Rotation2d getGyroRotation() {
-        return Rotation2d.fromDegrees(-gyro.getAngle() - gyroOffsetDegrees);
-    }
-
-    // counterclockwise is positive
-    public Rotation2d getNotOffsetGyroRotation() {
         return Rotation2d.fromDegrees(-gyro.getAngle());
+    }
+    public Rotation2d getOffsetGyroRotation() {
+        return Rotation2d.fromDegrees(-gyro.getAngle() - gyroOffsetDegrees);
     }
 
     public Pose2d getPose() {
@@ -142,11 +128,19 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     // PRINT
+    public void printEncoderValues() {
+        System.out.println("ENCODER POSITIONS");
+        frontLeftModule.printEncoderPositions("FL");
+        frontRightModule.printEncoderPositions("FR");
+        backLeftModule.printEncoderPositions("BL");
+        backRightModule.printEncoderPositions("BR");
+    }
     public void printGyroValue() {
+        System.out.println("GYRO VALUE");
         System.out.println(getGyroRotation());
     }
-
     public void printOdometerPose() {
+        System.out.println("ODOMETER POSE");
         System.out.println(getPose());
     }
 
@@ -162,17 +156,12 @@ public class DriveSubsystem extends SubsystemBase {
     // not working
     public void resetOdometer() {
         printOdometerPose();
-        odometer.resetPosition(getNotOffsetGyroRotation(), getSwerveModulePositions(), getPose());
+        odometer.resetPosition(getGyroRotation(), getSwerveModulePositions(), getPose());
         printOdometerPose();
     }
 
     public SwerveModulePosition[] getSwerveModulePositions() {
-        return new SwerveModulePosition[] {
-            frontLeftModule.getPosition(), 
-            frontRightModule.getPosition(), 
-            backLeftModule.getPosition(), 
-            backRightModule.getPosition()
-        };
+        return new SwerveModulePosition[] {frontLeftModule.getPosition(), frontRightModule.getPosition(), backLeftModule.getPosition(), backRightModule.getPosition()};
     }
 
     public boolean isAtPosition(double longitudinalPosition, double lateralPosition) {
@@ -181,6 +170,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void updateOdometer() {
-        odometer.update(getNotOffsetGyroRotation(), getSwerveModulePositions());
+        odometer.update(getGyroRotation(), getSwerveModulePositions());
     }
 }

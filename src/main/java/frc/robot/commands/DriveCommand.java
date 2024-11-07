@@ -8,9 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveCommand extends Command {
     private enum DriveType {
-        ARCADE, 
-        SWERVE, 
-        NONE; // spins the motor
+        ARCADE, SWERVE, NONE; // spins the motor
     }
 
     private final DriveSubsystem driveSubsystem;
@@ -57,10 +55,13 @@ public class DriveCommand extends Command {
         System.out.println("End drive command");
     }
 
+    // PRINT
     public void printJoystickAxes() {
+        System.out.println("JOYSTICK AXES");
         System.out.println("LX: " + controller.getLeftStickX());
         System.out.println("LY: " + controller.getLeftStickY());
         System.out.println("RX: " + controller.getRightStickX());
+        System.out.println("RY: " + controller.getRightStickY());
     }
 
     public boolean isFinished() {
