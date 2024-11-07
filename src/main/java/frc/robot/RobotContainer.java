@@ -62,10 +62,11 @@ public class RobotContainer {
             new AutonomousDriveCommand(driveSubsystem, 0, 0, 0),
             new AutonomousDriveCommand(driveSubsystem, 0.3, 0, 0),
             new AutonomousDriveCommand(driveSubsystem, 1, 0, 0),
-            new AutonomousDriveCommand(driveSubsystem, 1.2, 0, 0),
+            new AutonomousDriveCommand(driveSubsystem, 1.2, 0, 45),
             // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
-            new IntakeRollerCommand(intakeSubsystem, 0.3)
+            new IntakeRollerCommand(intakeSubsystem, 0.3),
+            new IntakeDeployCommand(intakeSubsystem, false)
         );
     }
 }
