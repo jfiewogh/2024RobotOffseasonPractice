@@ -21,7 +21,8 @@ public class SwerveModule {
     private final double turnAngleRadians;
 
     public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, EncoderConfig config) {
-        driveMotor = new Motor(driveMotorDeviceId, false);
+        driveMotor = new Motor(driveMotorDeviceId, true);
+        
         angleMotor = new Motor(angleMotorDeviceId, flipMotor);
 
         // for some reason, clockwise means counterclockwise positive

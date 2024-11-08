@@ -24,7 +24,7 @@ public final class Constants {
   }
 
   public static class SwerveConstants {
-    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(10); // 14, 16.9
+    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(1); // 14, 16.9
     public static final double kMaxRotationSpeed = Math.PI; // radians per second
 
     public static final double kRotationP = 0.1;

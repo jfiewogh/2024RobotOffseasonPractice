@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.Controller.Button;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -56,12 +57,17 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        DriveState[] driveStates = {
+            new DriveState(0, 0, 0, 10), 
+            new DriveState(0.3, 0, 0, 20),
+            new DriveState(1, 0, 0, 20),
+            new DriveState(1.2, 0, 45, 20)
+        };
+        AutonomousDriveCommand path = new AutonomousDriveCommand(driveSubsystem, driveStates);
+
         return new SequentialCommandGroup(
             // Drive
-            new AutonomousDriveCommand(driveSubsystem, 0, 0, 0),
-            new AutonomousDriveCommand(driveSubsystem, 0.3, 0, 0),
-            new AutonomousDriveCommand(driveSubsystem, 1, 0, 0),
-            new AutonomousDriveCommand(driveSubsystem, 1.2, 0, 45),
+            // path,
             // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
             new IntakeRollerCommand(intakeSubsystem, 0.3),

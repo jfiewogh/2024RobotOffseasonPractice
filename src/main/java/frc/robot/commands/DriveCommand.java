@@ -11,13 +11,14 @@ public class DriveCommand extends Command {
         ARCADE, 
         SWERVE, 
         DRIVE, // spins the drive motors
-        SPIN; // spins the angle motors
+        SPIN, // spins the angle motors
+        TEST;
     }
 
     private final DriveSubsystem driveSubsystem;
     private final Controller controller;
 
-    private final DriveType driveType = DriveType.SWERVE;
+    private final DriveType driveType = DriveType.DRIVE;
 
     public DriveCommand(DriveSubsystem subsystem, Controller controller) {
         driveSubsystem = subsystem;
@@ -37,13 +38,15 @@ public class DriveCommand extends Command {
                 driveSubsystem.arcadeDrive(getLeftStickYSpeed(), controller.getRightStickX());
                 break;
             case SWERVE:
-                driveSubsystem.swerveDriveSpeeds(getLeftStickXSpeed(), controller.getLeftStickY(), controller.getRightStickX());
+                driveSubsystem.swerveDriveSpeeds(getLeftStickXSpeed(), getLeftStickYSpeed(), controller.getRightStickX());
                 break;
             case DRIVE:
                 driveSubsystem.drive();
                 break;
             case SPIN:
                 driveSubsystem.spin();
+                break;
+            default:
                 break;
         }
         driveSubsystem.updateOdometer();

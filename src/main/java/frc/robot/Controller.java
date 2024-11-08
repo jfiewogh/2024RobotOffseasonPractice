@@ -43,7 +43,7 @@ public class Controller {
 
     // Left is positive
     public double getLeftStickX() {
-        return joystick.getRawAxis(0);
+        return -joystick.getRawAxis(0);
     }
     
     // Up is positive
@@ -53,7 +53,7 @@ public class Controller {
     
     // Left is positive
     public double getRightStickX() {
-        return joystick.getRawAxis(2);
+        return -joystick.getRawAxis(2);
     }
     
     // Up is positive
