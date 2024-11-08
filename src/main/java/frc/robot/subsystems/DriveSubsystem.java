@@ -38,7 +38,7 @@ public class DriveSubsystem extends SubsystemBase {
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     // positive is counterclockwise
-    private static final double gyroOffsetDegrees = 0;
+    private static final double gyroOffsetDegrees = 90;
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
@@ -61,24 +61,24 @@ public class DriveSubsystem extends SubsystemBase {
     // Robot centric
     public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
         ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
-        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getGyroRotation());
+        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getOffsetGyroRotation());
         return getModuleStatesFromChassisSpeeds(robotRelativeSpeeds);
     }
 
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getGyroRotation());
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getOffsetGyroRotation());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
     public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
-        if (relativeLateralSpeed < 0.01) relativeLateralSpeed = 0;
-        if (relativeLongitundalSpeed < 0.01) relativeLongitundalSpeed = 0;
-        if (relativeRotationSpeed < 0.01) relativeRotationSpeed = 0;
-
-        double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
+        // flip this for some reason
+        double lateralSpeed = -relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
+        
         double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
-        double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
+
+        // flip this for some reason
+        double rotationSpeed = -relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
 
         SwerveModuleState[] moduleStates = getFieldCentricModuleStates(lateralSpeed, longitundalSpeed, rotationSpeed);
         frontLeftModule.setState(moduleStates[0]);

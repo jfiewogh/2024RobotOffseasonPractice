@@ -18,7 +18,7 @@ public class DriveCommand extends Command {
     private final DriveSubsystem driveSubsystem;
     private final Controller controller;
 
-    private final DriveType driveType = DriveType.DRIVE;
+    private final DriveType driveType = DriveType.SWERVE;
 
     public DriveCommand(DriveSubsystem subsystem, Controller controller) {
         driveSubsystem = subsystem;
