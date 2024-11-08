@@ -4,14 +4,31 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
+import frc.robot.commands.DriveCommand;
+import frc.robot.commands.IntakeDeployCommand;
+import frc.robot.commands.IntakeRollerCommand;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.Controller.Button;
+import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.AutoSwerveConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -57,17 +74,31 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        DriveState[] driveStates = {
-            new DriveState(0, 0, 0, 10), 
-            new DriveState(0.3, 0, 0, 20),
-            new DriveState(1, 0, 0, 20),
-            new DriveState(1.2, 0, 45, 20)
-        };
-        AutonomousDriveCommand path = new AutonomousDriveCommand(driveSubsystem, driveStates);
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(SwerveConstants.kMaxSpeedMetersPerSecond, SwerveConstants.kMaxAccelerationMetersPerSecondSquared);
+        
+        ArrayList<Pose2d> waypoints = new ArrayList<Pose2d>();
+        waypoints.add(new Pose2d(0, 0, new Rotation2d(0)));
+        waypoints.add(new Pose2d(0.3, 0, new Rotation2d(5)));
+        waypoints.add(new Pose2d(0.5, 0.1, new Rotation2d(10)));
+        waypoints.add(new Pose2d(1, 0.2, new Rotation2d(5)));
+        
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(waypoints, trajectoryConfig);
+
+        PIDController xController = new PIDController(AutoSwerveConstants.kXP, 0, 0);
+        PIDController yController = new PIDController(AutoSwerveConstants.kYP, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(AutoSwerveConstants.kThetaP, 0, 0, AutoSwerveConstants.kThetaConstraints);
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+            trajectory, 
+            driveSubsystem::getPose, 
+            driveSubsystem.getKinematics(), 
+            new HolonomicDriveController(xController, yController, thetaController), 
+            driveSubsystem::setModuleStates, 
+            driveSubsystem
+        );
 
         return new SequentialCommandGroup(
             // Drive
-            // path,
+            swerveControllerCommand,
             // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
             new IntakeRollerCommand(intakeSubsystem, 0.3),

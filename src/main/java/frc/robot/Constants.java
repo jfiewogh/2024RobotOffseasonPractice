@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -24,8 +25,11 @@ public final class Constants {
   }
 
   public static class SwerveConstants {
-    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(1); // 14, 16.9
+    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(1);
+    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond; // temporary
+
     public static final double kMaxRotationSpeed = Math.PI / 6; // radians per second
+    public static final double kMaxRotationAcceleration = kMaxRotationSpeed;
 
     public static final double kRotationP = 0.1;
 
@@ -35,6 +39,13 @@ public final class Constants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.5);
     public static final double kWheelRadiusMeters = kWheelDiameterMeters / 2;
   } 
+
+  public static class AutoSwerveConstants {
+    public static final double kXP = 0.1; 
+    public static final double kYP = 0.1;
+    public static final double kThetaP = 0.1;
+    public static final Constraints kThetaConstraints = new Constraints(SwerveConstants.kMaxRotationSpeed, SwerveConstants.kMaxRotationAcceleration);
+  }
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;

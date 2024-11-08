@@ -4,10 +4,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.proto.Kinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,8 +35,6 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule backLeftModule = new SwerveModule(5, 6, backLeftLocation, EncoderConfig.BACK_LEFT);
     private final SwerveModule backRightModule = new SwerveModule(7, 8, backRightLocation, EncoderConfig.BACK_RIGHT);
 
-    private static final double kPositionP = 0.1; 
-    private static final double kRotationP = 2;
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     // positive is counterclockwise
@@ -71,38 +71,18 @@ public class DriveSubsystem extends SubsystemBase {
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
-    public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
-        // flip this for some reason
-        double lateralSpeed = -relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
-        
-        double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
-
-        // flip this for some reason
-        double rotationSpeed = -relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
-
-        SwerveModuleState[] moduleStates = getFieldCentricModuleStates(lateralSpeed, longitundalSpeed, rotationSpeed);
+    public void setModuleStates(SwerveModuleState[] moduleStates) {
         frontLeftModule.setState(moduleStates[0]);
         frontRightModule.setState(moduleStates[1]);
         backLeftModule.setState(moduleStates[2]);
         backRightModule.setState(moduleStates[3]);
     }
 
-    public void swerveDrivePosition(double desiredLongitudinalPosition, double desiredLateralPosition, Rotation2d desiredRotation) {
-        Pose2d currentPose = odometer.getPoseMeters();
-
-        double longitudinalError = desiredLongitudinalPosition - currentPose.getX();
-        double lateralError = desiredLateralPosition - currentPose.getY();
-        double driveAngle = Math.atan2(longitudinalError, lateralError);
-        double driveSpeed = DriveModule.normalizeSpeed(Math.hypot(lateralError * kPositionP, longitudinalError * kPositionP));
-        double longitudinalSpeed = driveSpeed * Math.sin(driveAngle);
-        double lateralSpeed = driveSpeed * Math.cos(driveAngle);
-
-        double desiredRotationRadians = DriveModule.normalizeAngleRadiansSigned(desiredRotation.getRadians());
-        double currentRotationRadians = DriveModule.normalizeAngleRadiansSigned(currentPose.getRotation().getRadians()); 
-        double rotationErrorRadians = DriveModule.optimizeErrorRadians(desiredRotationRadians - currentRotationRadians);
-        double rotationSpeed = DriveModule.normalizeSpeed(rotationErrorRadians / SwerveConstants.kMaxRotationSpeed * kRotationP);
-
-        swerveDriveSpeeds(lateralSpeed, longitudinalSpeed, rotationSpeed);
+    public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
+        double lateralSpeed = -relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond; // flip sign for some reason
+        double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
+        double rotationSpeed = -relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed; // flip sign for some reason
+        setModuleStates(getFieldCentricModuleStates(lateralSpeed, longitundalSpeed, rotationSpeed));
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
@@ -183,5 +163,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void updateOdometer() {
         odometer.update(getGyroRotation(), getSwerveModulePositions());
+    }
+
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
     }
 }
