@@ -77,10 +77,10 @@ public class RobotContainer {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(SwerveConstants.kMaxSpeedMetersPerSecond, SwerveConstants.kMaxAccelerationMetersPerSecondSquared);
         
         ArrayList<Pose2d> waypoints = new ArrayList<Pose2d>();
-        waypoints.add(new Pose2d(0, 0, new Rotation2d(0)));
-        waypoints.add(new Pose2d(0.3, 0, new Rotation2d(5)));
-        waypoints.add(new Pose2d(0.5, 0.1, new Rotation2d(10)));
-        waypoints.add(new Pose2d(1, 0.2, new Rotation2d(5)));
+        waypoints.add(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+        waypoints.add(new Pose2d(0.3, 0, Rotation2d.fromDegrees(5)));
+        waypoints.add(new Pose2d(0.5, 0.1, Rotation2d.fromDegrees(10)));
+        waypoints.add(new Pose2d(1, 0.2, Rotation2d.fromDegrees(5)));
         
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(waypoints, trajectoryConfig);
 
