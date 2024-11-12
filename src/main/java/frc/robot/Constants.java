@@ -60,6 +60,8 @@ public final class Constants {
      * set the offsets to the negative of the recorded values
      * (To see the offsets, you have to run twice for some reason.)
      */
+
+    // possibly fix these
     public static final double kFrontLeftOffset = -1.7441 / Constants.kTau;
     public static final double kFrontRightOffset = 2.0678 / Constants.kTau;
     public static final double kBackLeftOffset = (-2.0801 + Math.PI) / Constants.kTau;
