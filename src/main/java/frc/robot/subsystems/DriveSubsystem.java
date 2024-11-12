@@ -40,7 +40,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
-    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroRotation(), getSwerveModulePositions());
+    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, new Rotation2d(0), getSwerveModulePositions());
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
@@ -124,6 +124,12 @@ public class DriveSubsystem extends SubsystemBase {
         frontRightModule.printEncoderPositions("FR");
         backLeftModule.printEncoderPositions("BL");
         backRightModule.printEncoderPositions("BR");
+    }
+    public void printDriveEncoderValues() {
+        frontLeftModule.printDriveEncoderValue("FL");
+        frontRightModule.printDriveEncoderValue("FR");
+        backLeftModule.printDriveEncoderValue("BL");
+        backRightModule.printDriveEncoderValue("BR");
     }
     public void printGyroValue() {
         System.out.println("GYRO VALUE");

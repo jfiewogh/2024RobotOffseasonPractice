@@ -16,16 +16,12 @@ public class SwerveModule {
 
     private final AbsoluteEncoder wheelAngleAbsoluteEncoder; // rotations of the wheel, not the motor
 
-    private final Boolean flipMotor = true;
-
     private final double turnAngleRadians;
 
     public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, EncoderConfig config) {
-        driveMotor = new Motor(driveMotorDeviceId, true);
-        
-        angleMotor = new Motor(angleMotorDeviceId, flipMotor);
+        driveMotor = new Motor(driveMotorDeviceId, true, false);
+        angleMotor = new Motor(angleMotorDeviceId, true, true);
 
-        // for some reason, clockwise means counterclockwise positive
         wheelAngleAbsoluteEncoder = new AbsoluteEncoder(config, SensorDirectionValue.CounterClockwise_Positive);
 
         turnAngleRadians = getTurningAngleRadians(location); // only used for alternative swerve
@@ -126,7 +122,11 @@ public class SwerveModule {
         double r1 = angleMotor.getPositionRotations();
         double a1 = wheelAngleAbsoluteEncoder.getPositionRotations();
         double a2 = DriveModule.angleWheelToMotor(a1);
-        System.out.println("R1 " + String.format("%.3f", r1) + ", A1 " + String.format("%.3f", a1) + ", A2 " + String.format("%.3f", a2));    
+        System.out.println("R1 " + r1 + ", A1 " + a1 + ", A2 " + a2);    
+    }
+
+    public void printDriveEncoderValue(String name) {
+        System.out.println(name + ": " + driveMotor.getPositionRotations());
     }
 
     // meters

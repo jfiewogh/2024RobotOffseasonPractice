@@ -10,15 +10,15 @@ public class DriveCommand extends Command {
     private enum DriveType {
         ARCADE, 
         SWERVE, 
-        DRIVE, // spins the drive motors
-        SPIN, // spins the angle motors
+        DRIVE, // spins the drive motors // determine direction
+        SPIN, // spins the angle motors // determine direction
         TEST;
     }
 
     private final DriveSubsystem driveSubsystem;
     private final Controller controller;
 
-    private final DriveType driveType = DriveType.SWERVE;
+    private final DriveType driveType = DriveType.TEST;
 
     public DriveCommand(DriveSubsystem subsystem, Controller controller) {
         driveSubsystem = subsystem;
