@@ -35,22 +35,24 @@ public class AbsoluteEncoder {
             return offset;
         }
     }
+    
+    private final CANcoder absoluteEncoder;
 
-    public static CANcoder createAbsoluteEncoder(EncoderConfig config) {
-        int deviceId = config.getDeviceId();
-        double offset = config.getOffset();
+    public AbsoluteEncoder(EncoderConfig config, SensorDirectionValue directionValue) {
+        absoluteEncoder = new CANcoder(config.getDeviceId());
 
-        CANcoder encoder = new CANcoder(deviceId);
         CANcoderConfiguration CANcoderConfig = new CANcoderConfiguration();
         MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
-        
+
         magnetSensorConfigs.withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf);
-        magnetSensorConfigs.withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
-        magnetSensorConfigs.withMagnetOffset(offset);
+        magnetSensorConfigs.withSensorDirection(directionValue);
+        magnetSensorConfigs.withMagnetOffset(config.getOffset()); // don't flip offset because joystick is flipped, I think
 
         CANcoderConfig.withMagnetSensor(magnetSensorConfigs);
-        encoder.getConfigurator().apply(CANcoderConfig);
+        absoluteEncoder.getConfigurator().apply(CANcoderConfig);
+    }
 
-        return encoder;
+    public double getPositionRotations() {
+        return absoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
 }
