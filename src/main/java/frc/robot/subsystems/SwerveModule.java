@@ -31,15 +31,15 @@ public class SwerveModule {
 
     private static double getTurningAngleRadians(Translation2d location) {
         double turningAngleRadians = (Math.PI / 2) - getAngleRadiansFromComponents(location.getY(), location.getX());
-        return DriveModule.normalizeAngleRadiansSigned(turningAngleRadians);
+        return DriveUtils.normalizeAngleRadiansSigned(turningAngleRadians);
     }
 
     public void setDriveMotorSpeed(double speed) {
-        driveMotor.set(DriveModule.normalizeSpeed(speed));
+        driveMotor.set(DriveUtils.normalizeSpeed(speed));
     }
     // positive speed is counterclockwise
     public void setAngleMotorSpeed(double speed) {
-        angleMotor.set(DriveModule.normalizeSpeed(speed));
+        angleMotor.set(DriveUtils.normalizeSpeed(speed));
     }
 
     /**
@@ -50,16 +50,16 @@ public class SwerveModule {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         double driveMotorSpeed = speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
         // Get and Optimize Error
-        double currentWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(DriveModule.angleMotorToWheel(angleMotor.getPositionRadians()));
-        double desiredWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(state.angle.getRadians());
+        double currentWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()));
+        double desiredWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(state.angle.getRadians());
         double wheelErrorRadians = desiredWheelAngleRadians - currentWheelAngleRadians;
         // if greater than 90 deg, add 180 deg and flip drive motor direction
         if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
-            wheelErrorRadians = DriveModule.normalizeAngleRadiansSigned(wheelErrorRadians + Math.PI);
+            wheelErrorRadians = DriveUtils.normalizeAngleRadiansSigned(wheelErrorRadians + Math.PI);
             driveMotorSpeed = -driveMotorSpeed;
         }
-        double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
-        double speed = DriveModule.convertErrorRadiansToSpeed(motorErrorRadians);
+        double motorErrorRadians = DriveUtils.angleWheelToMotor(wheelErrorRadians);
+        double speed = DriveUtils.convertErrorRadiansToSpeed(motorErrorRadians);
         setAngleMotorSpeed(speed);
         setDriveMotorSpeed(driveMotorSpeed);
     }
@@ -83,7 +83,7 @@ public class SwerveModule {
         double speedX = driveSpeedX + turnSpeedX;
         // Determine and return angle and total speed
         double desiredAngle = Math.atan2(speedY, speedX);
-        double speed = DriveModule.normalizeSpeed(Math.hypot(speedX, speedY));
+        double speed = DriveUtils.normalizeSpeed(Math.hypot(speedX, speedY));
         return new double[] {desiredAngle, speed};
     }
 
@@ -92,30 +92,30 @@ public class SwerveModule {
      * @param desiredAngle the desired wheel angle
      */
     public void setAngle(Rotation2d desiredAngle) {
-        double currentWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(DriveModule.angleMotorToWheel(angleMotor.getPositionRadians()));
-        double desiredWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(desiredAngle.getRadians());
-        double wheelErrorRadians = DriveModule.optimizeErrorRadians(DriveModule.normalizeAngleRadiansSigned(desiredWheelAngleRadians - currentWheelAngleRadians));
-        double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
-        double speed = DriveModule.convertErrorRadiansToSpeed(motorErrorRadians);
+        double currentWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()));
+        double desiredWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(desiredAngle.getRadians());
+        double wheelErrorRadians = DriveUtils.optimizeErrorRadians(DriveUtils.normalizeAngleRadiansSigned(desiredWheelAngleRadians - currentWheelAngleRadians));
+        double motorErrorRadians = DriveUtils.angleWheelToMotor(wheelErrorRadians);
+        double speed = DriveUtils.convertErrorRadiansToSpeed(motorErrorRadians);
         setAngleMotorSpeed(speed);
     }
 
     // Return the angle in radians formed by the x and y components
     public static double getAngleRadiansFromComponents(double y, double x) {
-        return DriveModule.normalizeAngleRadiansSigned(Math.atan2(y, x));
+        return DriveUtils.normalizeAngleRadiansSigned(Math.atan2(y, x));
     }
 
     // Set the relative encoder values to default
     public void resetEncoders() {
         driveMotor.setEncoderPosition(0);
-        angleMotor.setEncoderPosition(DriveModule.angleWheelToMotor(wheelAngleAbsoluteEncoder.getPositionRotations()));
+        angleMotor.setEncoderPosition(DriveUtils.angleWheelToMotor(wheelAngleAbsoluteEncoder.getPositionRotations()));
     }
 
     public void printEncoderPositions(String name) {
         System.out.print(name + ": ");
         double r1 = angleMotor.getPositionRotations();
         double a1 = wheelAngleAbsoluteEncoder.getPositionRotations();
-        double a2 = DriveModule.angleWheelToMotor(a1);
+        double a2 = DriveUtils.angleWheelToMotor(a1);
         System.out.println("R1 " + r1 + ", A1 " + a1 + ", A2 " + a2);    
     }
 
@@ -126,8 +126,8 @@ public class SwerveModule {
     // meters
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            DriveModule.driveMotorToWheel(driveMotor.getPositionRadians()) * SwerveConstants.kWheelRadiusMeters,
-            Rotation2d.fromRadians(DriveModule.angleMotorToWheel(angleMotor.getPositionRadians()))
+            DriveUtils.driveMotorToWheel(driveMotor.getPositionRadians()) * SwerveConstants.kWheelRadiusMeters,
+            Rotation2d.fromRadians(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()))
         );
     }
 }
