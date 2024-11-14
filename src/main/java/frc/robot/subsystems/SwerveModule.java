@@ -37,7 +37,6 @@ public class SwerveModule {
     public void setDriveMotorSpeed(double speed) {
         driveMotor.set(DriveModule.normalizeSpeed(speed));
     }
-
     // positive speed is counterclockwise
     public void setAngleMotorSpeed(double speed) {
         angleMotor.set(DriveModule.normalizeSpeed(speed));
@@ -50,23 +49,18 @@ public class SwerveModule {
     public void setState(SwerveModuleState state) {
         double speedMetersPerSecond = state.speedMetersPerSecond;
         double driveMotorSpeed = speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
-
+        // Get and Optimize Error
         double currentWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(DriveModule.angleMotorToWheel(angleMotor.getPositionRadians()));
         double desiredWheelAngleRadians = DriveModule.normalizeAngleRadiansSigned(state.angle.getRadians());
-        
-        // Optimize Error
         double wheelErrorRadians = desiredWheelAngleRadians - currentWheelAngleRadians;
-
+        // if greater than 90 deg, add 180 deg and flip drive motor direction
         if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
             wheelErrorRadians = DriveModule.normalizeAngleRadiansSigned(wheelErrorRadians + Math.PI);
             driveMotorSpeed = -driveMotorSpeed;
         }
-
         double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
         double speed = DriveModule.convertErrorRadiansToSpeed(motorErrorRadians);
-
-        angleMotor.set(speed);
-
+        setAngleMotorSpeed(speed);
         setDriveMotorSpeed(driveMotorSpeed);
     }
 
@@ -103,7 +97,7 @@ public class SwerveModule {
         double wheelErrorRadians = DriveModule.optimizeErrorRadians(DriveModule.normalizeAngleRadiansSigned(desiredWheelAngleRadians - currentWheelAngleRadians));
         double motorErrorRadians = DriveModule.angleWheelToMotor(wheelErrorRadians);
         double speed = DriveModule.convertErrorRadiansToSpeed(motorErrorRadians);
-        angleMotor.set(speed);
+        setAngleMotorSpeed(speed);
     }
 
     // Return the angle in radians formed by the x and y components
