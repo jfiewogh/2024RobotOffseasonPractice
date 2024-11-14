@@ -58,6 +58,7 @@ public class SwerveModule {
         double wheelErrorRadians = desiredWheelAngleRadians - currentWheelAngleRadians;
 
         if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
+            // add 180 to error and flip drive motor direction
             wheelErrorRadians = DriveModule.normalizeAngleRadiansSigned(wheelErrorRadians + Math.PI);
             driveMotorSpeed = -driveMotorSpeed;
         }
