@@ -36,6 +36,13 @@ public class DriveSubsystem extends SubsystemBase {
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     // positive is counterclockwise
+    /*
+     * FUTURE TEST
+     * try with zero offset
+     * print joystick values
+     * (optional) print speed values
+     * (optional) print angle values
+     */
     private static final double gyroOffsetDegrees = 90;
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
@@ -77,10 +84,10 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
-        double lateralSpeed = -relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond; // flip sign for some reason
+        double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
-        double rotationSpeed = -relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed; // flip sign for some reason
-        setModuleStates(getFieldCentricModuleStates(lateralSpeed, longitundalSpeed, rotationSpeed));
+        double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
+        setModuleStates(getFieldCentricModuleStates(longitundalSpeed, lateralSpeed, rotationSpeed));
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
