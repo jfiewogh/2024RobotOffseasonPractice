@@ -4,18 +4,30 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
-import frc.robot.Controller.Button;
+import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DriveCommand;
+import frc.robot.commands.IntakeDeployCommand;
+import frc.robot.commands.IntakeRollerCommand;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.Controller.Button;
+import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.AutoSwerveConstants;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,7 +42,9 @@ public class RobotContainer {
 
     private final DriveSubsystem driveSubsystem = new DriveSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+    // private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+
+    private final DriveCommand driveCommand = new DriveCommand(driveSubsystem, controller);
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -40,9 +54,13 @@ public class RobotContainer {
 
     private void configureBindings() { 
         // Test
-        controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.getEncoderValues()));
-        controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.getGyroValue()));
-        controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
+        controller.getButton(Button.X).onTrue(new InstantCommand(() -> driveSubsystem.printEncoderValues()));
+        controller.getButton(Button.A).onTrue(new InstantCommand(() -> driveSubsystem.printGyroValue()));
+        // controller.getButton(Button.B).onTrue(new InstantCommand(() -> System.out.println(intakeSubsystem.getIntakeDeployRelativePosition())));
+        controller.getButton(Button.Y).onTrue(new InstantCommand(() -> driveCommand.printJoystickAxes()));
+        controller.getButton(Button.B).onTrue(new InstantCommand(() -> driveSubsystem.printOdometerPose()));
+
+        controller.getButton(Button.Start).onTrue(new InstantCommand(() -> driveSubsystem.reset()));
 
         /* INTAKE */
         controller.getButton(Button.RB).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
@@ -55,9 +73,35 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(SwerveConstants.kMaxSpeedMetersPerSecond, SwerveConstants.kMaxAccelerationMetersPerSecondSquared);
+        
+        ArrayList<Pose2d> waypoints = new ArrayList<Pose2d>();
+        waypoints.add(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+        waypoints.add(new Pose2d(0.3, 0, Rotation2d.fromDegrees(5)));
+        waypoints.add(new Pose2d(0.5, 0.1, Rotation2d.fromDegrees(10)));
+        waypoints.add(new Pose2d(1, 0.2, Rotation2d.fromDegrees(5)));
+        
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(waypoints, trajectoryConfig);
+
+        PIDController xController = new PIDController(AutoSwerveConstants.kXP, 0, 0);
+        PIDController yController = new PIDController(AutoSwerveConstants.kYP, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(AutoSwerveConstants.kThetaP, 0, 0, AutoSwerveConstants.kThetaConstraints);
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+            trajectory, 
+            driveSubsystem::getPose, 
+            driveSubsystem.getKinematics(), 
+            new HolonomicDriveController(xController, yController, thetaController), 
+            driveSubsystem::setModuleStates, 
+            driveSubsystem
+        );
+
         return new SequentialCommandGroup(
+            // Drive
+            swerveControllerCommand,
+            // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
-            new IntakeRollerCommand(intakeSubsystem, 0.3)        
+            new IntakeRollerCommand(intakeSubsystem, 0.3),
+            new IntakeDeployCommand(intakeSubsystem, false)
         );
     }
 }

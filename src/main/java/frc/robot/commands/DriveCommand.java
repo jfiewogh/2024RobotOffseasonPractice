@@ -2,18 +2,23 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Controller;
+import frc.robot.Constants.DriveConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveCommand extends Command {
     private enum DriveType {
-        ARCADE, SWERVE, NONE;
+        ARCADE, 
+        SWERVE, 
+        DRIVE, // spins the drive motors // determine direction
+        SPIN, // spins the angle motors // determine direction
+        TEST;
     }
 
     private final DriveSubsystem driveSubsystem;
     private final Controller controller;
 
-    private final DriveType driveType = DriveType.SWERVE;
+    private final DriveType driveType = DriveType.TEST;
 
     public DriveCommand(DriveSubsystem subsystem, Controller controller) {
         driveSubsystem = subsystem;
@@ -30,27 +35,43 @@ public class DriveCommand extends Command {
     public void execute() {
         switch (driveType) {
             case ARCADE:
-                driveSubsystem.arcadeDrive(controller.getLeftStickY() * 0.5, controller.getRightStickX() * 0.5);
+                driveSubsystem.arcadeDrive(getLeftStickYSpeed(), controller.getRightStickX());
                 break;
             case SWERVE:
-                // System.out.println(controller.getLeftStickX() + " " + controller.getLeftStickY() + " " + controller.getRightStickX());
-                driveSubsystem.swerveDrive(controller.getLeftStickX(), controller.getLeftStickY(), controller.getRightStickX());
+                driveSubsystem.swerveDriveSpeeds(getLeftStickXSpeed(), getLeftStickYSpeed(), controller.getRightStickX());
+                break;
+            case DRIVE:
+                driveSubsystem.drive();
+                break;
+            case SPIN:
+                driveSubsystem.spin();
                 break;
             default:
                 driveSubsystem.spin();
                 break;
         }
+        driveSubsystem.updateOdometer();
     } 
+
+    public double getLeftStickXSpeed() {
+        return controller.getLeftStickX() * DriveConstants.kMaxDriveSpeed;
+    }
+    public double getLeftStickYSpeed() {
+        return controller.getLeftStickY() * DriveConstants.kMaxDriveSpeed;
+    }
 
     @Override
     public void end(boolean interrupted) {
         System.out.println("End drive command");
     }
 
+    // PRINT
     public void printJoystickAxes() {
+        System.out.println("JOYSTICK AXES");
         System.out.println("LX: " + controller.getLeftStickX());
         System.out.println("LY: " + controller.getLeftStickY());
         System.out.println("RX: " + controller.getRightStickX());
+        System.out.println("RY: " + controller.getRightStickY());
     }
 
     public boolean isFinished() {

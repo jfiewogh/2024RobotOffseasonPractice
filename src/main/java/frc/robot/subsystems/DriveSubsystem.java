@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -11,11 +14,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;;
-
-// problems
-// FIXED: when changing the angle, the gear makes a weird noise
-// sometimes the wheels are not aligned at the right angle, slightly off
+import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
+import frc.robot.Constants.SwerveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
     private static final double width = Units.inchesToMeters(19.75);
@@ -28,94 +28,143 @@ public class DriveSubsystem extends SubsystemBase {
 
     private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
-    private static final EncoderConfig frontLeftConfig = EncoderConfig.FRONT_LEFT;
-    private static final EncoderConfig frontRightConfig = EncoderConfig.FRONT_RIGHT;
-    private static final EncoderConfig backLeftConfig = EncoderConfig.BACK_LEFT;
-    private static final EncoderConfig backRightConfig = EncoderConfig.BACK_RIGHT;
+    private final SwerveModule frontLeftModule = new SwerveModule(1, 2, frontLeftLocation, EncoderConfig.FRONT_LEFT);
+    private final SwerveModule frontRightModule = new SwerveModule(3, 4, frontRightLocation, EncoderConfig.FRONT_RIGHT);
+    private final SwerveModule backLeftModule = new SwerveModule(5, 6, backLeftLocation, EncoderConfig.BACK_LEFT);
+    private final SwerveModule backRightModule = new SwerveModule(7, 8, backRightLocation, EncoderConfig.BACK_RIGHT);
 
-    private final SwerveModule frontLeftSwerveModule = new SwerveModule(1, 2, frontLeftLocation, frontLeftConfig);
-    private final SwerveModule frontRightSwerveModule = new SwerveModule(3, 4, frontRightLocation, frontRightConfig);
-    private final SwerveModule backLeftSwerveModule = new SwerveModule(5, 6, backLeftLocation, backLeftConfig);
-    private final SwerveModule backRightSwerveModule = new SwerveModule(7, 8, backRightLocation, backRightConfig);
+    private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
-    public DriveSubsystem() {
-        // sets the starting direction of the robot to be 0 degrees
-        // doesn't work
-        // resetGyro();
-    }
-    
+    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, new Rotation2d(0), getSwerveModulePositions());
+
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
-        // System.out.println(forwardSpeed + " " + turnSpeed);
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
-        frontLeftSwerveModule.setDriveMotorSpeed(leftSpeed);
-        frontRightSwerveModule.setDriveMotorSpeed(leftSpeed);
-        backLeftSwerveModule.setDriveMotorSpeed(rightSpeed);
-        backRightSwerveModule.setDriveMotorSpeed(rightSpeed);
+        frontLeftModule.setDriveMotorSpeed(leftSpeed);
+        frontRightModule.setDriveMotorSpeed(leftSpeed);
+        backLeftModule.setDriveMotorSpeed(rightSpeed);
+        backRightModule.setDriveMotorSpeed(rightSpeed);
     }
 
     //
-    public SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
+    public static SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
         return kinematics.toSwerveModuleStates(speeds);
     }
 
     // Robot centric
     public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
         ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
-        return getModuleStatesFromChassisSpeeds(speeds);
+        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getGyroAngle());
+        return getModuleStatesFromChassisSpeeds(robotRelativeSpeeds);
     }
 
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
-        // speeds in swerve are positive forward and positive left, so flip lateral speed
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, -lateralSpeed, turnSpeed, getRotation2d());
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getGyroAngle());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
-    public void swerveDrive(double lateralSpeed, double longitudinalSpeed, double turnSpeed) {
-        SwerveModuleState[] moduleStates = getRobotCentricModuleStates(longitudinalSpeed, lateralSpeed, turnSpeed);
-        // System.out.println(moduleStates[0] + " " + moduleStates[1] + " " + moduleStates[2] + " " + moduleStates[3]);
-        frontLeftSwerveModule.setState(moduleStates[0]);
-        frontRightSwerveModule.setState(moduleStates[1]);
-        backLeftSwerveModule.setState(moduleStates[2]);
-        backRightSwerveModule.setState(moduleStates[3]);
+    public void setModuleStates(SwerveModuleState[] moduleStates) {
+        frontLeftModule.setState(moduleStates[0]);
+        frontRightModule.setState(moduleStates[1]);
+        backLeftModule.setState(moduleStates[2]);
+        backRightModule.setState(moduleStates[3]);
+    }
+
+    public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
+        double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
+        double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
+        double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
+        setModuleStates(getFieldCentricModuleStates(longitundalSpeed, lateralSpeed, rotationSpeed));
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
         double driveAngleRadians = SwerveModule.getAngleRadiansFromComponents(ySpeed, xSpeed);
         double driveSpeed = Math.hypot(xSpeed, ySpeed);
-        frontLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
-        frontRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
-        backLeftSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
-        backRightSwerveModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        frontLeftModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        frontRightModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        backLeftModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+        backRightModule.setState(driveSpeed, driveAngleRadians, turnSpeed);
+    }
+
+    public void drive() {
+        frontLeftModule.setDriveMotorSpeed(0.1);
+        frontRightModule.setDriveMotorSpeed(0.1);
+        backLeftModule.setDriveMotorSpeed(0.1);
+        backRightModule.setDriveMotorSpeed(0.1);
     }
 
     public void spin() {
-        frontLeftSwerveModule.setAngleMotorSpeed(0.1);
-        frontRightSwerveModule.setAngleMotorSpeed(0.1);
-        backLeftSwerveModule.setAngleMotorSpeed(0.1);
-        backRightSwerveModule.setAngleMotorSpeed(0.1);
+        frontLeftModule.setAngleMotorSpeed(0.1);
+        frontRightModule.setAngleMotorSpeed(0.1);
+        backLeftModule.setAngleMotorSpeed(0.1);
+        backRightModule.setAngleMotorSpeed(0.1);
     }
 
-    public void getEncoderValues() {
-        System.out.println("FL: " + frontLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("FR: " + frontRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + frontRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + frontRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("BL: " + backLeftSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backLeftSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backLeftSwerveModule.getAngleMotorAbsoluteEncoderRotations());
-        System.out.println("BR: " + backRightSwerveModule.getAngleMotorRelativeEncoderRotations() + " " + backRightSwerveModule.getAngleWheelAbsoluteEncoderRotations() + " " + backRightSwerveModule.getAngleMotorAbsoluteEncoderRotations());
+    public Rotation2d getGyroAngle() {
+        return Rotation2d.fromDegrees(-gyro.getAngle());
     }
 
-    public Rotation2d getRotation2d() {
-        // positive gyro angle is clockwise
-        // positive swerve drive angle is counterclockwise
-        // so flip the sign
-        // rotate origin 90 degrees clockwise
-        return Rotation2d.fromDegrees(-gyro.getAngle() + 90);
+    public Pose2d getPose() {
+        return odometer.getPoseMeters();
     }
 
-    public void getGyroValue() {
-        System.out.println(getRotation2d());
+    // PRINT
+    public void printEncoderValues() {
+        System.out.println("ENCODER POSITIONS");
+        frontLeftModule.printEncoderPositions("FL");
+        frontRightModule.printEncoderPositions("FR");
+        backLeftModule.printEncoderPositions("BL");
+        backRightModule.printEncoderPositions("BR");
+    }
+    public void printDriveEncoderValues() {
+        frontLeftModule.printDriveEncoderValue("FL");
+        frontRightModule.printDriveEncoderValue("FR");
+        backLeftModule.printDriveEncoderValue("BL");
+        backRightModule.printDriveEncoderValue("BR");
+    }
+    public void printGyroValue() {
+        System.out.println("GYRO VALUE");
+        System.out.println(getGyroAngle());
+    }
+    public void printOdometerPose() {
+        System.out.println("ODOMETER POSE");
+        System.out.println(getPose());
+    }
+
+    public void reset() {
+        resetGyro();
+        resetOdometer();
+    }
+
+    public void resetGyro() {
+        gyro.reset();
+    }
+
+    // not working
+    public void resetOdometer() {
+        printOdometerPose();
+        odometer.resetPosition(getGyroAngle(), getSwerveModulePositions(), getPose());
+        printOdometerPose();
+    }
+
+    public SwerveModulePosition[] getSwerveModulePositions() {
+        return new SwerveModulePosition[] {frontLeftModule.getPosition(), frontRightModule.getPosition(), backLeftModule.getPosition(), backRightModule.getPosition()};
+    }
+
+    public boolean isAtPosition(double longitudinalPosition, double lateralPosition) {
+        Pose2d pose = getPose();
+        return Math.abs(pose.getX() - longitudinalPosition) < kAtPositionThreshold && Math.abs(pose.getY() - lateralPosition) < kAtPositionThreshold;
+    }
+
+    public void updateOdometer() {
+        odometer.update(getGyroAngle(), getSwerveModulePositions());
+    }
+
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
     }
 
     public void resetGyro() {
