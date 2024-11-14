@@ -35,16 +35,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
-    // positive is counterclockwise
-    /*
-     * FUTURE TEST
-     * try with zero offset
-     * print joystick values
-     * (optional) print speed values
-     * (optional) print angle values
-     */
-    private static final double gyroOffsetDegrees = 90;
-
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, new Rotation2d(0), getSwerveModulePositions());
@@ -66,13 +56,13 @@ public class DriveSubsystem extends SubsystemBase {
     // Robot centric
     public SwerveModuleState[] getRobotCentricModuleStates(double longitudinalSpeedSpeed, double lateralSpeed, double turnSpeed) {
         ChassisSpeeds speeds = new ChassisSpeeds(longitudinalSpeedSpeed, lateralSpeed, turnSpeed);
-        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getOffsetGyroRotation());
+        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getGyroAngle());
         return getModuleStatesFromChassisSpeeds(robotRelativeSpeeds);
     }
 
     // Field centric
     public SwerveModuleState[] getFieldCentricModuleStates(double longitudinalSpeed, double lateralSpeed, double turnSpeed) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getOffsetGyroRotation());
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(longitudinalSpeed, lateralSpeed, turnSpeed, getGyroAngle());
         return getModuleStatesFromChassisSpeeds(speeds);
     }
 
@@ -113,11 +103,8 @@ public class DriveSubsystem extends SubsystemBase {
         backRightModule.setAngleMotorSpeed(0.1);
     }
 
-    public Rotation2d getGyroRotation() {
+    public Rotation2d getGyroAngle() {
         return Rotation2d.fromDegrees(-gyro.getAngle());
-    }
-    public Rotation2d getOffsetGyroRotation() {
-        return Rotation2d.fromDegrees(-gyro.getAngle() - gyroOffsetDegrees);
     }
 
     public Pose2d getPose() {
@@ -140,7 +127,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
     public void printGyroValue() {
         System.out.println("GYRO VALUE");
-        System.out.println(getGyroRotation());
+        System.out.println(getGyroAngle());
     }
     public void printOdometerPose() {
         System.out.println("ODOMETER POSE");
@@ -159,7 +146,7 @@ public class DriveSubsystem extends SubsystemBase {
     // not working
     public void resetOdometer() {
         printOdometerPose();
-        odometer.resetPosition(getGyroRotation(), getSwerveModulePositions(), getPose());
+        odometer.resetPosition(getGyroAngle(), getSwerveModulePositions(), getPose());
         printOdometerPose();
     }
 
@@ -173,7 +160,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void updateOdometer() {
-        odometer.update(getGyroRotation(), getSwerveModulePositions());
+        odometer.update(getGyroAngle(), getSwerveModulePositions());
     }
 
     public SwerveDriveKinematics getKinematics() {
