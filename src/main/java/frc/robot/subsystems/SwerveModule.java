@@ -19,7 +19,7 @@ public class SwerveModule {
     private final double turnAngleRadians;
 
     public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, EncoderConfig config) {
-        driveMotor = new Motor(driveMotorDeviceId, true, false);
+        driveMotor = new Motor(driveMotorDeviceId, false, false);
         angleMotor = new Motor(angleMotorDeviceId, true, true);
 
         wheelAngleAbsoluteEncoder = new AbsoluteEncoder(config, SensorDirectionValue.CounterClockwise_Positive);
@@ -47,8 +47,7 @@ public class SwerveModule {
      * @param state the desired speed and angle
      */
     public void setState(SwerveModuleState state) {
-        double speedMetersPerSecond = state.speedMetersPerSecond;
-        double driveMotorSpeed = speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
+        double driveMotorSpeed = state.speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
         // Get and Optimize Error
         double currentWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()));
         double desiredWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(state.angle.getRadians());

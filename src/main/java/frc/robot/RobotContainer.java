@@ -79,7 +79,7 @@ public class RobotContainer {
         waypoints.add(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
         waypoints.add(new Pose2d(0.3, 0, Rotation2d.fromDegrees(5)));
         waypoints.add(new Pose2d(0.5, 0.1, Rotation2d.fromDegrees(10)));
-        waypoints.add(new Pose2d(1, 0.2, Rotation2d.fromDegrees(5)));
+        waypoints.add(new Pose2d(0.6, 0.2, Rotation2d.fromDegrees(5)));
         
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(waypoints, trajectoryConfig);
 

@@ -104,7 +104,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getGyroAngle() {
-        return Rotation2d.fromDegrees(-gyro.getAngle());
+        return gyro.getRotation2d();
     }
 
     public Pose2d getPose() {
@@ -135,8 +135,8 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void reset() {
-        resetGyro();
         resetOdometer();
+        resetGyro();
     }
 
     public void resetGyro() {
