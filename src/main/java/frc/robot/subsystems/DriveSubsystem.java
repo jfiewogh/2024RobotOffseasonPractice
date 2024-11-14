@@ -166,8 +166,4 @@ public class DriveSubsystem extends SubsystemBase {
     public SwerveDriveKinematics getKinematics() {
         return kinematics;
     }
-
-    public void resetGyro() {
-        gyro.reset();
-    }
 }

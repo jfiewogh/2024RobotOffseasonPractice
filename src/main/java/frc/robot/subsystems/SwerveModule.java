@@ -42,11 +42,6 @@ public class SwerveModule {
         angleMotor.set(DriveModule.normalizeSpeed(speed));
     }
 
-    // positive speed is counterclockwise
-    public void setAngleMotorSpeed(double speed) {
-        angleMotor.set(normalizeSpeed(speed));
-    }
-
     /**
      * This sets the SwerveModule to the desired state
      * @param state the desired speed and angle
