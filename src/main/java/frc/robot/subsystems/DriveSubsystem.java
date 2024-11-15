@@ -146,7 +146,7 @@ public class DriveSubsystem extends SubsystemBase {
     // not working
     public void resetOdometer() {
         printOdometerPose();
-        odometer.resetPosition(getGyroAngle(), getSwerveModulePositions(), getPose());
+        odometer.resetPosition(getGyroAngle(), getSwerveModulePositions(), new Pose2d(0, 0, getGyroAngle()));
         printOdometerPose();
     }
 
