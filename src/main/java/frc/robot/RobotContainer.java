@@ -90,7 +90,9 @@ public class RobotContainer {
             trajectory, 
             driveSubsystem::getPose, 
             driveSubsystem.getKinematics(), 
-            new HolonomicDriveController(xController, yController, thetaController), 
+            xController,
+            yController,
+            thetaController,
             driveSubsystem::setModuleStates, 
             driveSubsystem
         );

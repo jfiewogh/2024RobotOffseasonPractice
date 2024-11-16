@@ -143,7 +143,6 @@ public class DriveSubsystem extends SubsystemBase {
         gyro.reset();
     }
 
-    // not working
     public void resetOdometer() {
         printOdometerPose();
         odometer.resetPosition(getGyroAngle(), getSwerveModulePositions(), new Pose2d(0, 0, getGyroAngle()));

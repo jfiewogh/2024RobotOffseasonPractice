@@ -34,10 +34,10 @@ public class DriveCommand extends Command {
     public void execute() {
         switch (driveType) {
             case ARCADE:
-                driveSubsystem.arcadeDrive(getLeftStickY(), controller.getRightStickX());
+                driveSubsystem.arcadeDrive(getLeftStickY(), getRightStickX());
                 break;
             case SWERVE:
-                driveSubsystem.swerveDriveSpeeds(getLeftStickX(), getLeftStickY(), controller.getRightStickX());
+                driveSubsystem.swerveDriveSpeeds(getLeftStickX(), getLeftStickY(), getRightStickX());
                 break;
             case DRIVE:
                 driveSubsystem.drive();
@@ -56,6 +56,9 @@ public class DriveCommand extends Command {
     }
     public double getLeftStickY() {
         return controller.getLeftStickY();
+    }
+    public double getRightStickX() {
+        return controller.getRightStickX();
     }
 
     @Override
