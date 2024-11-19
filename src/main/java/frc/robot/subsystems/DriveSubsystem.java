@@ -98,9 +98,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void spin() {
         frontLeftModule.setAngleMotorSpeed(0.1);
-        frontRightModule.setAngleMotorSpeed(0.1);
-        backLeftModule.setAngleMotorSpeed(0.1);
-        backRightModule.setAngleMotorSpeed(0.1);
+        // frontLeftModule.printPositionSlope();
+        // frontRightModule.setAngleMotorSpeed(0.1);
+        // backLeftModule.setAngleMotorSpeed(0.1);
+        // backRightModule.setAngleMotorSpeed(0.1);
     }
 
     public Rotation2d getGyroAngle() {
@@ -115,9 +116,9 @@ public class DriveSubsystem extends SubsystemBase {
     public void printEncoderValues() {
         System.out.println("ENCODER POSITIONS");
         frontLeftModule.printEncoderPositions("FL");
-        frontRightModule.printEncoderPositions("FR");
-        backLeftModule.printEncoderPositions("BL");
-        backRightModule.printEncoderPositions("BR");
+        // frontRightModule.printEncoderPositions("FR");
+        // backLeftModule.printEncoderPositions("BL");
+        // backRightModule.printEncoderPositions("BR");
     }
     public void printDriveEncoderValues() {
         frontLeftModule.printDriveEncoderValue("FL");

@@ -9,9 +9,10 @@ public class DriveCommand extends Command {
     private enum DriveType {
         ARCADE, 
         SWERVE, 
-        DRIVE, // spins the drive motors // determine direction
-        SPIN, // spins the angle motors // determine direction
-        TEST;
+        DRIVE, // spins the drive motors // used to determine direction of drive motors
+        SPIN, // spins the angle motors // used to determine direction of angle motors
+        TEST,
+        ALIGN;
     }
 
     private final DriveSubsystem driveSubsystem;
@@ -44,6 +45,9 @@ public class DriveCommand extends Command {
                 break;
             case SPIN:
                 driveSubsystem.spin();
+                break;
+            case ALIGN:
+                driveSubsystem.swerveDriveSpeeds(0, 0, 0);
                 break;
             default:
                 break;

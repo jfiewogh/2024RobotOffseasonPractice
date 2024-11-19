@@ -6,11 +6,15 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeDeployCommand extends Command {
     private final IntakeSubsystem intakeSubsystem;
-    private final boolean isDeploy;
+    private final double desiredPosition;
 
     public IntakeDeployCommand(IntakeSubsystem subsystem, boolean isDeploy) {
         intakeSubsystem = subsystem;
-        this.isDeploy = isDeploy;
+        if (isDeploy) {
+            desiredPosition = IntakeConstants.kDeployPosition;
+        } else {
+            desiredPosition = IntakeConstants.kRetractPosition;
+        }
         addRequirements(intakeSubsystem);
     }
 
@@ -20,11 +24,7 @@ public class IntakeDeployCommand extends Command {
 
     @Override
     public void execute() {
-        if (isDeploy) {
-            intakeSubsystem.setIntakeDeployMotor(IntakeConstants.kDeployPosition);
-        } else {
-            intakeSubsystem.setIntakeDeployMotor(IntakeConstants.kRetractPosition);
-        }
+        intakeSubsystem.setIntakeDeployMotor(desiredPosition);
     }
 
     @Override
@@ -33,6 +33,6 @@ public class IntakeDeployCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return (desiredPosition - intakeSubsystem.getIntakeDeployRelativePosition()) < 0.5;
     }
 }

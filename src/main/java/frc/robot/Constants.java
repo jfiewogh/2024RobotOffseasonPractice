@@ -22,15 +22,17 @@ public final class Constants {
 
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(1);
-    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond; // temporary
+    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond / 10; // temporary
 
     public static final double kMaxRotationSpeed = Math.PI / 6; // radians per second
-    public static final double kMaxRotationAcceleration = kMaxRotationSpeed;
+    public static final double kMaxRotationAcceleration = kMaxRotationSpeed / 10;
 
     public static final double kRotationP = 0.1;
 
-    public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
-    public static final double kDriveMotorGearRatio = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
+    // gear ratio determine using desmos
+    public static final double kAngleMotorGearRatio = 0.157406; // (14.0 / 50.0) * (10.0 / 60.0);
+    
+    public static final double kDriveMotorGearRatio = 2; // (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
     
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.5);
     public static final double kWheelRadiusMeters = kWheelDiameterMeters / 2;

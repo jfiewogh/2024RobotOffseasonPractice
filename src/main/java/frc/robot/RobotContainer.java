@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -65,8 +64,8 @@ public class RobotContainer {
         /* INTAKE */
         controller.getButton(Button.RB).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
         controller.getButton(Button.RT).onTrue(new IntakeDeployCommand(intakeSubsystem, false));
-        controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3));
-        controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3));
+        controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3, 0.5));
+        controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3, 0.5));
 
         // new JoystickButton(joystick, Button.B2.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(-1)));
         // new JoystickButton(joystick, Button.B3.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(1)));
@@ -77,11 +76,16 @@ public class RobotContainer {
         
         ArrayList<Pose2d> waypoints = new ArrayList<Pose2d>();
         waypoints.add(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        waypoints.add(new Pose2d(0.3, 0, Rotation2d.fromDegrees(5)));
-        waypoints.add(new Pose2d(0.5, 0.1, Rotation2d.fromDegrees(10)));
-        waypoints.add(new Pose2d(0.6, 0.2, Rotation2d.fromDegrees(5)));
+        waypoints.add(new Pose2d(0, 0, Rotation2d.fromDegrees(25)));
+        // waypoints.add(new Pose2d(0.5, 0, Rotation2d.fromDegrees(10)));
+        // waypoints.add(new Pose2d(0.6, 0, Rotation2d.fromDegrees(20)));
         
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(waypoints, trajectoryConfig);
+
+        // THESE are the problems
+        // drive doesn't stop
+        // turn doesn't even start (just errors)
+
 
         PIDController xController = new PIDController(AutoSwerveConstants.kXP, 0, 0);
         PIDController yController = new PIDController(AutoSwerveConstants.kYP, 0, 0);
@@ -102,7 +106,7 @@ public class RobotContainer {
             swerveControllerCommand,
             // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
-            new IntakeRollerCommand(intakeSubsystem, 0.3),
+            new IntakeRollerCommand(intakeSubsystem, 0.3, 0.5),
             new IntakeDeployCommand(intakeSubsystem, false)
         );
     }

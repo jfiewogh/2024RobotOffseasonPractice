@@ -19,8 +19,11 @@ public class SwerveModule {
     private final double turnAngleRadians;
 
     public SwerveModule(int driveMotorDeviceId, int angleMotorDeviceId, Translation2d location, EncoderConfig config) {
+        // does the type of battery or position affect this?
         driveMotor = new Motor(driveMotorDeviceId, false, false);
-        angleMotor = new Motor(angleMotorDeviceId, true, true);
+        // option 1: true, true
+        // option 2: false, false
+        angleMotor = new Motor(angleMotorDeviceId, false, false);
 
         wheelAngleAbsoluteEncoder = new AbsoluteEncoder(config, SensorDirectionValue.CounterClockwise_Positive);
 
@@ -109,13 +112,33 @@ public class SwerveModule {
         driveMotor.setEncoderPosition(0);
         angleMotor.setEncoderPosition(DriveUtils.angleWheelToMotor(wheelAngleAbsoluteEncoder.getPositionRotations()));
     }
+/*
+ * 
+ *  ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 12.513083457946777, A1 0.412841796875, A2 8.846609933035714 ﻿
+﻿﻿﻿﻿﻿﻿ ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 13.441595077514648, A1 -0.440185546875, A2 -9.432547433035714 ﻿
+﻿﻿﻿﻿﻿﻿ ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 14.349254608154297, A1 -0.294677734375, A2 -6.314522879464286 ﻿
+﻿﻿﻿﻿﻿﻿ ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 15.284842491149902, A1 -0.144775390625, A2 -3.102329799107143 ﻿
+﻿﻿﻿﻿﻿﻿ ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 16.206466674804688, A1 0.001953125, A2 0.04185267857142857 ﻿
+﻿﻿﻿﻿﻿﻿ ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 17.058269500732422, A1 0.135498046875, A2 2.903529575892857 ﻿
+﻿﻿﻿﻿﻿﻿ ENCODER POSITIONS ﻿
+﻿﻿﻿﻿﻿﻿ FL: R1 17.944984436035156, A1 0.277587890625, A2 5.948311941964286 ﻿
+﻿﻿﻿﻿﻿﻿ End drive command ﻿
+ */
+
 
     public void printEncoderPositions(String name) {
         System.out.print(name + ": ");
-        double r1 = angleMotor.getPositionRotations();
+        double r2 = angleMotor.getPositionRotations();
+        double r1 = DriveUtils.angleMotorToWheel(r2);
         double a1 = wheelAngleAbsoluteEncoder.getPositionRotations();
         double a2 = DriveUtils.angleWheelToMotor(a1);
-        System.out.println("R1 " + r1 + ", A1 " + a1 + ", A2 " + a2);    
+        System.out.println("R1 " + r1 + ", R2 " + r2 + ", A1 " + a1 + ", A2 " + a2);    
     }
 
     public void printDriveEncoderValue(String name) {
@@ -128,6 +151,28 @@ public class SwerveModule {
             DriveUtils.driveMotorToWheel(driveMotor.getPositionRadians()) * SwerveConstants.kWheelRadiusMeters,
             Rotation2d.fromRadians(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()))
         );
+    }
+
+    double sumRelative = 0;
+    double sumAbsolute = 0;
+
+    double count = 1;
+
+    double lastRelative = 0;
+    double lastAbsolute = 0;
+
+    public void printPositionSlope() {
+        double currentRelative = DriveUtils.angleMotorToWheel(angleMotor.getPositionRotations());
+        System.out.println(currentRelative - lastRelative + " " + sumRelative/count);
+        double currentAbsolute = wheelAngleAbsoluteEncoder.getPositionRotations();
+        System.out.println(currentAbsolute - lastAbsolute + " " + sumAbsolute/count);
+
+        sumRelative += currentRelative - lastRelative;
+        sumAbsolute += currentAbsolute - lastAbsolute;
+        count++;
+
+        lastRelative = currentRelative;
+        lastAbsolute = currentAbsolute;
     }
 }
 
