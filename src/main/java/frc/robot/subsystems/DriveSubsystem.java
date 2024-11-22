@@ -97,7 +97,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void spin() {
-        frontLeftModule.setAngleMotorSpeed(0.1);
+        frontLeftModule.setAngleMotorSpeed(0.05);
         // frontLeftModule.printPositionSlope();
         // frontRightModule.setAngleMotorSpeed(0.1);
         // backLeftModule.setAngleMotorSpeed(0.1);

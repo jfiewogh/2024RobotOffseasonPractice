@@ -23,7 +23,7 @@ public class SwerveModule {
         driveMotor = new Motor(driveMotorDeviceId, false, false);
         // option 1: true, true
         // option 2: false, false
-        angleMotor = new Motor(angleMotorDeviceId, false, false);
+        angleMotor = new Motor(angleMotorDeviceId, true, true);
 
         wheelAngleAbsoluteEncoder = new AbsoluteEncoder(config, SensorDirectionValue.CounterClockwise_Positive);
 
