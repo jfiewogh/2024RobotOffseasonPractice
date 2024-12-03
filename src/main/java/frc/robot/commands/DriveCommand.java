@@ -38,7 +38,7 @@ public class DriveCommand extends Command {
                 driveSubsystem.arcadeDrive(getLeftStickYSpeed(), controller.getRightStickX());
                 break;
             case SWERVE:
-                driveSubsystem.swerveDriveSpeeds(getLeftStickXSpeed(), getLeftStickYSpeed(), controller.getRightStickX());
+                driveSubsystem.swerveDriveRelativeSpeeds(getLeftStickXSpeed(), getLeftStickYSpeed(), controller.getRightStickX());
                 break;
             case DRIVE:
                 driveSubsystem.drive();

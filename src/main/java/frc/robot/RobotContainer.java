@@ -8,6 +8,7 @@ import java.util.List;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.AutoDriveCommand;
 import frc.robot.commands.IntakeDeployCommand;
 import frc.robot.commands.IntakeRollerCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -88,29 +89,10 @@ public class RobotContainer {
             new Pose2d(1, 0.2, Rotation2d.fromDegrees(25)),
             trajectoryConfig
         );
-
-        // THESE are the problems
-        // drive doesn't stop
-
-        PIDController xController = new PIDController(AutoSwerveConstants.kXP, 0, 0);
-        PIDController yController = new PIDController(AutoSwerveConstants.kYP, 0, 0);
         
-        ProfiledPIDController thetaController = new ProfiledPIDController(
-            AutoSwerveConstants.kThetaP, 0, 0, AutoSwerveConstants.kThetaConstraints);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-        
-        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-            trajectory, 
-            driveSubsystem::getPose, 
-            driveSubsystem.getKinematics(), 
-            new HolonomicDriveController(xController, yController, thetaController), 
-            driveSubsystem::setModuleStates, 
-            driveSubsystem
-        );
-
         return new SequentialCommandGroup(
             // Drive
-            swerveControllerCommand,
+            new AutoDriveCommand(driveSubsystem, trajectory),
             // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
             new IntakeRollerCommand(intakeSubsystem, 0.3),

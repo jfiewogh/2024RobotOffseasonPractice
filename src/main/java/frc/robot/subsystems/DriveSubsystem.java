@@ -93,11 +93,15 @@ public class DriveSubsystem extends SubsystemBase {
         backRightModule.setState(moduleStates[3]);
     }
 
-    public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
+    public void swerveDriveSpeeds(double xSpeed, double ySpeed, double rotationSpeed) {
+        setModuleStates(getFieldCentricModuleStates(xSpeed, ySpeed, rotationSpeed));   
+    }
+
+    public void swerveDriveRelativeSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
         double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
-        setModuleStates(getFieldCentricModuleStates(longitundalSpeed, lateralSpeed, rotationSpeed));
+        swerveDriveSpeeds(longitundalSpeed, lateralSpeed, rotationSpeed);
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
@@ -186,44 +190,5 @@ public class DriveSubsystem extends SubsystemBase {
 
     public SwerveDriveKinematics getKinematics() {
         return kinematics;
-    }
-
-
-
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-        SwerveConstants.kMaxSpeedMetersPerSecond, 
-        AutoSwerveConstants.kMaxAccelerationMetersPerSecondSquared)
-            .setKinematics(kinematics);
-
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-            new Translation2d(0.2, 0.1),
-            new Translation2d(0.5, 0.15)
-        ),
-        new Pose2d(1, 0.2, Rotation2d.fromDegrees(25)),
-        trajectoryConfig
-    );
-
-    HolonomicDriveController controller = new HolonomicDriveController(
-        new PIDController(0.01, 0, 0), 
-        new PIDController(0.01, 0, 0),
-        new ProfiledPIDController(0.05, 0, 0, AutoSwerveConstants.kThetaConstraints));
-
-    @Override
-    public void periodic() {
-        updateOdometer();
-
-        double time = timer.get();
-
-        if (time < 2) {
-            System.out.println(time);
-
-            Trajectory.State desiredState = trajectory.sample(time);
-            System.out.println(desiredState);
-
-            ChassisSpeeds targetSpeeds = controller.calculate(getPose(), desiredState, new Rotation2d(0));
-            System.out.println(targetSpeeds);
-        }
     }
 }
