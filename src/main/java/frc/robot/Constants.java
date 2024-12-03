@@ -26,10 +26,7 @@ public final class Constants {
 
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(1);
-    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond; // temporary
-
     public static final double kMaxRotationSpeed = Math.PI / 6; // radians per second
-    public static final double kMaxRotationAcceleration = kMaxRotationSpeed;
 
     public static final double kRotationP = 0.1;
 
@@ -41,10 +38,14 @@ public final class Constants {
   } 
 
   public static class AutoSwerveConstants {
-    public static final double kXP = 0.1; 
-    public static final double kYP = 0.1;
-    public static final double kThetaP = 0.1;
-    public static final Constraints kThetaConstraints = new Constraints(SwerveConstants.kMaxRotationSpeed, SwerveConstants.kMaxRotationAcceleration);
+    // these values are temporary
+    public static final double kMaxAccelerationMetersPerSecondSquared = SwerveConstants.kMaxSpeedMetersPerSecond / 10;
+    public static final double kMaxRotationAcceleration = SwerveConstants.kMaxRotationSpeed / 10;
+
+    public static final double kXP = 0.01; 
+    public static final double kYP = 0.01;
+    public static final double kThetaP = 0.05;
+    public static final Constraints kThetaConstraints = new Constraints(SwerveConstants.kMaxRotationSpeed, kMaxRotationAcceleration);
   }
 
   public static class OperatorConstants {

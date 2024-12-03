@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -8,14 +11,23 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import java.util.List;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
+import frc.robot.Constants.AutoSwerveConstants;
 import frc.robot.Constants.SwerveConstants;
+import edu.wpi.first.wpilibj.Timer;
+
+import java.io.FileWriter;
 
 public class DriveSubsystem extends SubsystemBase {
     private static final double width = Units.inchesToMeters(19.75);
@@ -36,8 +48,16 @@ public class DriveSubsystem extends SubsystemBase {
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
-
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, new Rotation2d(0), getSwerveModulePositions());
+
+    private final Timer timer = new Timer();
+
+    // private final FileWriter writer;
+
+    public DriveSubsystem() {
+        timer.restart();
+        // writer = new FileWriter("output.txt");
+    }
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
@@ -108,6 +128,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
+        System.out.println(odometer.getPoseMeters());
         return odometer.getPoseMeters();
     }
 
@@ -165,5 +186,44 @@ public class DriveSubsystem extends SubsystemBase {
 
     public SwerveDriveKinematics getKinematics() {
         return kinematics;
+    }
+
+
+
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+        SwerveConstants.kMaxSpeedMetersPerSecond, 
+        AutoSwerveConstants.kMaxAccelerationMetersPerSecondSquared)
+            .setKinematics(kinematics);
+
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+        List.of(
+            new Translation2d(0.2, 0.1),
+            new Translation2d(0.5, 0.15)
+        ),
+        new Pose2d(1, 0.2, Rotation2d.fromDegrees(25)),
+        trajectoryConfig
+    );
+
+    HolonomicDriveController controller = new HolonomicDriveController(
+        new PIDController(0.01, 0, 0), 
+        new PIDController(0.01, 0, 0),
+        new ProfiledPIDController(0.05, 0, 0, AutoSwerveConstants.kThetaConstraints));
+
+    @Override
+    public void periodic() {
+        updateOdometer();
+
+        double time = timer.get();
+
+        if (time < 2) {
+            System.out.println(time);
+
+            Trajectory.State desiredState = trajectory.sample(time);
+            System.out.println(desiredState);
+
+            ChassisSpeeds targetSpeeds = controller.calculate(getPose(), desiredState, new Rotation2d(0));
+            System.out.println(targetSpeeds);
+        }
     }
 }

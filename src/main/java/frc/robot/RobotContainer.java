@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DriveCommand;
@@ -25,6 +25,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -73,19 +74,31 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(SwerveConstants.kMaxSpeedMetersPerSecond, SwerveConstants.kMaxAccelerationMetersPerSecondSquared);
-        
-        ArrayList<Pose2d> waypoints = new ArrayList<Pose2d>();
-        waypoints.add(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        waypoints.add(new Pose2d(0.3, 0, Rotation2d.fromDegrees(5)));
-        waypoints.add(new Pose2d(0.5, 0.1, Rotation2d.fromDegrees(10)));
-        waypoints.add(new Pose2d(1, 0.2, Rotation2d.fromDegrees(5)));
-        
-        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(waypoints, trajectoryConfig);
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            SwerveConstants.kMaxSpeedMetersPerSecond, 
+            AutoSwerveConstants.kMaxAccelerationMetersPerSecondSquared);
+        trajectoryConfig.setKinematics(driveSubsystem.getKinematics());
+
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)),
+            List.of(
+                new Translation2d(0.2, 0.1),
+                new Translation2d(0.5, 0.15)
+            ),
+            new Pose2d(1, 0.2, Rotation2d.fromDegrees(25)),
+            trajectoryConfig
+        );
+
+        // THESE are the problems
+        // drive doesn't stop
 
         PIDController xController = new PIDController(AutoSwerveConstants.kXP, 0, 0);
         PIDController yController = new PIDController(AutoSwerveConstants.kYP, 0, 0);
-        ProfiledPIDController thetaController = new ProfiledPIDController(AutoSwerveConstants.kThetaP, 0, 0, AutoSwerveConstants.kThetaConstraints);
+        
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            AutoSwerveConstants.kThetaP, 0, 0, AutoSwerveConstants.kThetaConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        
         SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
             trajectory, 
             driveSubsystem::getPose, 
