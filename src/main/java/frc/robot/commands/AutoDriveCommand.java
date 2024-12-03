@@ -9,6 +9,13 @@ import frc.robot.subsystems.DriveSubsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.networktables.GenericEntry;
+
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,6 +24,12 @@ public class AutoDriveCommand extends Command {
   private final DriveSubsystem driveSubsystem;
   private final Timer timer = new Timer();
   private final Trajectory trajectory;
+
+  private final boolean shuffleboardPID = false;
+
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Auto Drive PID");
+  private final GenericEntry xP = tab.add("XP", AutoSwerveConstants.kXP).getEntry();
+  private final GenericEntry yP = tab.add("YP", AutoSwerveConstants.kYP).getEntry();
 
   /** Creates a new AutonomousDriveCommand. */
   public AutoDriveCommand(DriveSubsystem subsystem, Trajectory trajectory) {
@@ -47,9 +60,11 @@ public class AutoDriveCommand extends Command {
     double yError = desiredPose.getY() - currentPose.getY();
     double angleErrorRadians = desiredPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
 
-    double xSpeed = xError * AutoSwerveConstants.kXP;
-    double ySpeed = yError * AutoSwerveConstants.kYP;
+    double xSpeed = xError * (shuffleboardPID ? xP.getDouble(AutoSwerveConstants.kXP) : AutoSwerveConstants.kXP);
+    double ySpeed = yError * (shuffleboardPID ? yP.getDouble(AutoSwerveConstants.kXP) : AutoSwerveConstants.kYP);
     double rotationSpeed = angleErrorRadians * AutoSwerveConstants.kThetaP;
+
+    SmartDashboard.putNumber("Desired X", desiredPose.getX());
 
     driveSubsystem.swerveDriveSpeeds(xSpeed, ySpeed, rotationSpeed);
   }
