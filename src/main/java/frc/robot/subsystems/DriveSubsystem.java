@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,23 +8,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import java.util.List;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
-import frc.robot.Constants.AutoSwerveConstants;
 import frc.robot.Constants.SwerveConstants;
-import edu.wpi.first.wpilibj.Timer;
-
-import java.io.FileWriter;
 
 public class DriveSubsystem extends SubsystemBase {
     private static final double width = Units.inchesToMeters(19.75);
@@ -50,15 +38,6 @@ public class DriveSubsystem extends SubsystemBase {
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, new Rotation2d(0), getSwerveModulePositions());
 
-    private final Timer timer = new Timer();
-
-    // private final FileWriter writer;
-
-    public DriveSubsystem() {
-        timer.restart();
-        // writer = new FileWriter("output.txt");
-    }
-
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
         double leftSpeed = forwardSpeed + turnSpeed;
         double rightSpeed = forwardSpeed - turnSpeed;
@@ -68,7 +47,6 @@ public class DriveSubsystem extends SubsystemBase {
         backRightModule.setDriveMotorSpeed(rightSpeed);
     }
 
-    //
     public static SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
         return kinematics.toSwerveModuleStates(speeds);
     }
