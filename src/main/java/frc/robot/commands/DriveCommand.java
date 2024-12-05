@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Controller;
-import frc.robot.Constants.DriveConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -10,9 +9,10 @@ public class DriveCommand extends Command {
     private enum DriveType {
         ARCADE, 
         SWERVE, 
-        DRIVE, // spins the drive motors // determine direction
-        SPIN, // spins the angle motors // determine direction
-        TEST;
+        DRIVE, // spins the drive motors // used to determine direction of drive motors
+        SPIN, // spins the angle motors // used to determine direction of angle motors
+        TEST,
+        ALIGN;
     }
 
     private final DriveSubsystem driveSubsystem;
@@ -35,7 +35,7 @@ public class DriveCommand extends Command {
     public void execute() {
         switch (driveType) {
             case ARCADE:
-                driveSubsystem.arcadeDrive(getLeftStickYSpeed(), controller.getRightStickX());
+                driveSubsystem.arcadeDrive(getLeftStickY(), getRightStickX());
                 break;
             case SWERVE:
                 driveSubsystem.swerveDriveRelativeSpeeds(getLeftStickXSpeed(), getLeftStickYSpeed(), controller.getRightStickX());
@@ -46,17 +46,23 @@ public class DriveCommand extends Command {
             case SPIN:
                 driveSubsystem.spin();
                 break;
+            case ALIGN:
+                driveSubsystem.swerveDriveSpeeds(0, 0, 0);
+                break;
             default:
                 break;
         }
         driveSubsystem.updateOdometer();
     } 
 
-    public double getLeftStickXSpeed() {
-        return controller.getLeftStickX() * DriveConstants.kMaxDriveSpeed;
+    public double getLeftStickX() {
+        return controller.getLeftStickX();
     }
-    public double getLeftStickYSpeed() {
-        return controller.getLeftStickY() * DriveConstants.kMaxDriveSpeed;
+    public double getLeftStickY() {
+        return controller.getLeftStickY();
+    }
+    public double getRightStickX() {
+        return controller.getRightStickX();
     }
 
     @Override

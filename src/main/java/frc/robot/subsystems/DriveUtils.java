@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 
-public class DriveModule {
+public class DriveUtils {
     public static double angleWheelToMotor(double value) {
         return value / SwerveConstants.kAngleMotorGearRatio;
     }
@@ -68,6 +68,6 @@ public class DriveModule {
     }
 
     public static double convertErrorRadiansToSpeed(double errorRadians) {
-        return DriveModule.normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kRotationP);
+        return normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kRotationP);
     }
 }

@@ -20,6 +20,7 @@ import frc.robot.Constants.AutoSwerveConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -63,8 +64,8 @@ public class RobotContainer {
         /* INTAKE */
         controller.getButton(Button.RB).onTrue(new IntakeDeployCommand(intakeSubsystem, true));
         controller.getButton(Button.RT).onTrue(new IntakeDeployCommand(intakeSubsystem, false));
-        controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3));
-        controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3));
+        controller.getButton(Button.LB).onTrue(new IntakeRollerCommand(intakeSubsystem, 0.3, 0.5));
+        controller.getButton(Button.LT).onTrue(new IntakeRollerCommand(intakeSubsystem, -0.3, 0.5));
 
         // new JoystickButton(joystick, Button.B2.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(-1)));
         // new JoystickButton(joystick, Button.B3.getPort()).onTrue(new InstantCommand(() -> shooterSubsystem.runShooterAngleMotor(1)));
@@ -91,7 +92,7 @@ public class RobotContainer {
             new AutoDriveCommand(driveSubsystem, trajectory),
             // Intake
             new IntakeDeployCommand(intakeSubsystem, true),
-            new IntakeRollerCommand(intakeSubsystem, 0.3),
+            new IntakeRollerCommand(intakeSubsystem, 0.3, 0.5),
             new IntakeDeployCommand(intakeSubsystem, false)
         );
     }

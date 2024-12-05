@@ -20,10 +20,6 @@ public final class Constants {
 
   public static final double kPeriodicDuration = 0.03; // 30 milliseconds
 
-  public static class DriveConstants {
-    public static final double kMaxDriveSpeed = 0.5;
-  }
-
   public static class SwerveConstants {
     public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(1);
     public static final double kMaxRotationSpeed = Math.PI / 6; // radians per second

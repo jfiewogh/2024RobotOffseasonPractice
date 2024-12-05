@@ -21,7 +21,7 @@ public class Motor {
         return reverseEncoder ? -encoder.getPosition() : encoder.getPosition();
     }
     public double getPositionRadians() {
-        return DriveModule.rotationsToRadians(getPositionRotations());
+        return DriveUtils.rotationsToRadians(getPositionRotations());
     }
     
     public void setEncoderPosition(double position) {
@@ -32,3 +32,5 @@ public class Motor {
         motor.set(reverseMotor ? -relativeSpeed : relativeSpeed);
     }
 }
+
+
