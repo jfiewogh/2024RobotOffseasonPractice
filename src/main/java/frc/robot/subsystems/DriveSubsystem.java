@@ -32,11 +32,10 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule frontRightModule = new SwerveModule(3, 4, frontRightLocation, EncoderConfig.FRONT_RIGHT);
     private final SwerveModule backLeftModule = new SwerveModule(5, 6, backLeftLocation, EncoderConfig.BACK_LEFT);
     private final SwerveModule backRightModule = new SwerveModule(7, 8, backRightLocation, EncoderConfig.BACK_RIGHT);
-
+    
     private static final double kAtPositionThreshold = Units.inchesToMeters(12);
 
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
-
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, new Rotation2d(0), getSwerveModulePositions());
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
@@ -48,7 +47,6 @@ public class DriveSubsystem extends SubsystemBase {
         backRightModule.setDriveMotorSpeed(rightSpeed);
     }
 
-    //
     public static SwerveModuleState[] getModuleStatesFromChassisSpeeds(ChassisSpeeds speeds) {
         return kinematics.toSwerveModuleStates(speeds);
     }
@@ -73,11 +71,15 @@ public class DriveSubsystem extends SubsystemBase {
         backRightModule.setState(moduleStates[3]);
     }
 
-    public void swerveDriveSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
+    public void swerveDriveSpeeds(double xSpeed, double ySpeed, double rotationSpeed) {
+        setModuleStates(getFieldCentricModuleStates(xSpeed, ySpeed, rotationSpeed));   
+    }
+
+    public void swerveDriveRelativeSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
         double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
         double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
-        setModuleStates(getFieldCentricModuleStates(longitundalSpeed, lateralSpeed, rotationSpeed));
+        swerveDriveSpeeds(longitundalSpeed, lateralSpeed, rotationSpeed);
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {
@@ -109,6 +111,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
+        System.out.println(odometer.getPoseMeters());
         return odometer.getPoseMeters();
     }
 
