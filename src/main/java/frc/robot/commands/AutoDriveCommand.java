@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.Constants.AutoSwerveConstants;
 import frc.robot.subsystems.DriveSubsystem;
-
+import frc.robot.subsystems.DriveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -28,8 +28,8 @@ public class AutoDriveCommand extends Command {
   private final boolean shuffleboardPID = false;
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Auto Drive PID");
-  private final GenericEntry xP = tab.add("XP", AutoSwerveConstants.kXP).getEntry();
-  private final GenericEntry yP = tab.add("YP", AutoSwerveConstants.kYP).getEntry();
+  private final GenericEntry xP = tab.add("XP", AutoSwerveConstants.kXController.getP()).getEntry();
+  private final GenericEntry yP = tab.add("YP", AutoSwerveConstants.kYController.getP()).getEntry();
 
   /** Creates a new AutonomousDriveCommand. */
   public AutoDriveCommand(DriveSubsystem subsystem, Trajectory trajectory) {
@@ -42,6 +42,8 @@ public class AutoDriveCommand extends Command {
   @Override
   public void initialize() {
     timer.restart();
+    driveSubsystem.resetOdometer();
+    driveSubsystem.resetGyro();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -64,15 +66,19 @@ public class AutoDriveCommand extends Command {
     SmartDashboard.putNumber("Y Error", yError);
     SmartDashboard.putNumber("Rotation Error", angleErrorRadians);
 
-    double xSpeed = xError * (shuffleboardPID ? xP.getDouble(AutoSwerveConstants.kXP) : AutoSwerveConstants.kXP);
-    double ySpeed = yError * (shuffleboardPID ? yP.getDouble(AutoSwerveConstants.kXP) : AutoSwerveConstants.kYP);
+    double xSpeed = DriveUtils.normalizeSpeed(AutoSwerveConstants.kXController.calculate(currentPose.getX(), desiredPose.getX()));
+    double ySpeed = DriveUtils.normalizeSpeed(AutoSwerveConstants.kYController.calculate(currentPose.getY(), desiredPose.getY()));
     double rotationSpeed = angleErrorRadians * AutoSwerveConstants.kThetaP;
 
     SmartDashboard.putNumber("X Speed", xSpeed);
     SmartDashboard.putNumber("Y Speed", ySpeed);
     SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
 
-    driveSubsystem.swerveDriveRelativeSpeeds(ySpeed, xSpeed, rotationSpeed);
+    driveSubsystem.swerveDriveSpeeds(
+      ySpeed * AutoSwerveConstants.kMaxSpeed, 
+      xSpeed * AutoSwerveConstants.kMaxSpeed, 
+      rotationSpeed * AutoSwerveConstants.kMaxRotationSpeed
+    );
   }
 
   // Called once the command ends or is interrupted.
@@ -84,7 +90,6 @@ public class AutoDriveCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
-    // return timer.hasElapsed(trajectory.getTotalTimeSeconds());
+    return timer.hasElapsed(trajectory.getTotalTimeSeconds());
   }
 }

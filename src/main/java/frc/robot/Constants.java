@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
 /**
@@ -22,7 +23,7 @@ public final class Constants {
 
   public static class SwerveConstants {
     public static final double kCompleteMaxSpeed = Units.feetToMeters(16);
-    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(4);
+    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(2);
     public static final double kMaxRotationSpeed = Math.PI / 6; // radians per second
 
     public static final double kRotationP = 0.1;
@@ -39,9 +40,13 @@ public final class Constants {
     public static final double kMaxAccelerationMetersPerSecondSquared = SwerveConstants.kMaxSpeedMetersPerSecond / 10;
     public static final double kMaxRotationAcceleration = SwerveConstants.kMaxRotationSpeed / 10;
 
-    public static final double kXP = 50; 
-    public static final double kYP = 50;
-    public static final double kThetaP = 1;
+    public static final double kMaxSpeed = Units.feetToMeters(4);
+    public static final double kMaxRotationSpeed = Math.PI / 6;
+
+    public static final PIDController kXController = new PIDController(16, 0, 0.1);
+    public static final PIDController kYController = new PIDController(16, 0, 0.1);
+
+    public static final double kThetaP = 0.5;
     public static final Constraints kThetaConstraints = new Constraints(SwerveConstants.kMaxRotationSpeed, kMaxRotationAcceleration);
   }
 
