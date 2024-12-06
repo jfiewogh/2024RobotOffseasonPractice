@@ -14,7 +14,6 @@ import frc.robot.commands.IntakeRollerCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.Controller.Button;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.AutoSwerveConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -73,7 +71,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            SwerveConstants.kMaxSpeedMetersPerSecond, 
+            AutoSwerveConstants.kMaxDriveSpeedMetersPerSecond, 
             AutoSwerveConstants.kMaxAccelerationMetersPerSecondSquared);
         trajectoryConfig.setKinematics(driveSubsystem.getKinematics());
 

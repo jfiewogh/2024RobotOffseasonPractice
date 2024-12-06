@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 
 public class SwerveModule {
@@ -50,19 +51,20 @@ public class SwerveModule {
      * @param state the desired speed and angle
      */
     public void setState(SwerveModuleState state) {
-        double driveMotorSpeed = state.speedMetersPerSecond / SwerveConstants.kCompleteMaxSpeed;
-        // Get and Optimize Error
+        double driveMotorSpeed = state.speedMetersPerSecond / DriveConstants.kMaxDriveSpeedMetersPerSecond;
+        
         double currentWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()));
         double desiredWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(state.angle.getRadians());
         double wheelErrorRadians = desiredWheelAngleRadians - currentWheelAngleRadians;
+        
         // if greater than 90 deg, add 180 deg and flip drive motor direction
         if (Math.abs(wheelErrorRadians) > Math.PI / 2) {
             wheelErrorRadians = DriveUtils.normalizeAngleRadiansSigned(wheelErrorRadians + Math.PI);
             driveMotorSpeed = -driveMotorSpeed;
         }
-        double motorErrorRadians = DriveUtils.angleWheelToMotor(wheelErrorRadians);
-        double speed = DriveUtils.convertErrorRadiansToSpeed(motorErrorRadians);
-        setAngleMotorSpeed(speed);
+
+        setAngleMotorSpeed(DriveUtils.getAngleMotorSpeed(wheelErrorRadians, currentWheelAngleRadians));
+
         setDriveMotorSpeed(driveMotorSpeed);
     }
 
@@ -97,8 +99,7 @@ public class SwerveModule {
         double currentWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()));
         double desiredWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(desiredAngle.getRadians());
         double wheelErrorRadians = DriveUtils.optimizeErrorRadians(DriveUtils.normalizeAngleRadiansSigned(desiredWheelAngleRadians - currentWheelAngleRadians));
-        double motorErrorRadians = DriveUtils.angleWheelToMotor(wheelErrorRadians);
-        double speed = DriveUtils.convertErrorRadiansToSpeed(motorErrorRadians);
+        double speed = DriveUtils.getAngleMotorSpeed(wheelErrorRadians, currentWheelAngleRadians);
         setAngleMotorSpeed(speed);
     }
 

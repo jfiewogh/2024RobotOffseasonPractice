@@ -19,35 +19,40 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 public final class Constants {
   public static final double kTau = Math.PI * 2;
 
-  public static final double kPeriodicDuration = 0.03; // 30 milliseconds
+  public static final double kPeriodicDuration = 0.03; // 30 milliseconds // unused
+
+  public static class DriveConstants {
+    public static final double kMaxDriveSpeedMetersPerSecond = Units.feetToMeters(16);
+  }
 
   public static class SwerveConstants {
-    public static final double kCompleteMaxSpeed = Units.feetToMeters(16);
-    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(2);
-    public static final double kMaxRotationSpeed = Math.PI / 6; // radians per second
-
-    public static final double kRotationP = 0.1;
-
     public static final double kAngleMotorGearRatio = (14.0 / 50.0) * (10.0 / 60.0);
     public static final double kDriveMotorGearRatio = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
-    
+
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.5);
     public static final double kWheelRadiusMeters = kWheelDiameterMeters / 2;
   } 
 
+  public static class TeleopSwerveConstants {
+    public static final double kMaxDriveSpeedMetersPerSecond = Units.feetToMeters(2);
+    public static final double kMaxRotationSpeedRadiansPerSecond = Math.PI / 6;
+
+    public static final PIDController kRotationController = new PIDController(0.1 / Math.PI, 0, 0);
+  }
+
   public static class AutoSwerveConstants {
     // these values are temporary
-    public static final double kMaxAccelerationMetersPerSecondSquared = SwerveConstants.kMaxSpeedMetersPerSecond / 10;
-    public static final double kMaxRotationAcceleration = SwerveConstants.kMaxRotationSpeed / 10;
+    public static final double kMaxDriveSpeedMetersPerSecond = Units.feetToMeters(2);
+    public static final double kMaxRotationSpeedRadiansPerSecond = Math.PI / 6;
 
-    public static final double kMaxSpeed = Units.feetToMeters(4);
-    public static final double kMaxRotationSpeed = Math.PI / 6;
+    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxDriveSpeedMetersPerSecond / 6;
+    public static final double kMaxRotationAccelerationRadiansPerSecondSquared = kMaxRotationSpeedRadiansPerSecond / 6;
 
     public static final PIDController kXController = new PIDController(16, 0, 0.1);
     public static final PIDController kYController = new PIDController(16, 0, 0.1);
+    public static final PIDController kThetaController = new PIDController(0.5 / Math.PI, 0, 0);
 
-    public static final double kThetaP = 0.5;
-    public static final Constraints kThetaConstraints = new Constraints(SwerveConstants.kMaxRotationSpeed, kMaxRotationAcceleration);
+    public static final Constraints kThetaConstraints = new Constraints(kMaxRotationSpeedRadiansPerSecond, kMaxRotationAccelerationRadiansPerSecondSquared);
   }
 
   public static class OperatorConstants {

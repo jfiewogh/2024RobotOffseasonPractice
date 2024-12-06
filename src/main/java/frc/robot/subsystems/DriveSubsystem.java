@@ -15,7 +15,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.subsystems.AbsoluteEncoder.EncoderConfig;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.AutoSwerveConstants;
+import frc.robot.Constants.TeleopSwerveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
     private static final double width = Units.inchesToMeters(19.75);
@@ -75,11 +76,18 @@ public class DriveSubsystem extends SubsystemBase {
         setModuleStates(getFieldCentricModuleStates(xSpeed, ySpeed, rotationSpeed));   
     }
 
-    public void swerveDriveRelativeSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
-        double lateralSpeed = relativeLateralSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
-        double longitundalSpeed = relativeLongitundalSpeed * SwerveConstants.kMaxSpeedMetersPerSecond;
-        double rotationSpeed = relativeRotationSpeed * SwerveConstants.kMaxRotationSpeed;
+    public void swerveDriveTeleopRelativeSpeeds(double relativeLateralSpeed, double relativeLongitundalSpeed, double relativeRotationSpeed) {
+        double lateralSpeed = relativeLateralSpeed * TeleopSwerveConstants.kMaxDriveSpeedMetersPerSecond;
+        double longitundalSpeed = relativeLongitundalSpeed * TeleopSwerveConstants.kMaxDriveSpeedMetersPerSecond;
+        double rotationSpeed = relativeRotationSpeed * TeleopSwerveConstants.kMaxRotationSpeedRadiansPerSecond;
         swerveDriveSpeeds(longitundalSpeed, lateralSpeed, rotationSpeed);
+    }
+
+    public void swerveDriveAutoRelativeSpeeds(double relativeXSpeed, double relativeYSpeed, double relativeRotationSpeed) {
+        double xSpeed = relativeXSpeed * AutoSwerveConstants.kMaxDriveSpeedMetersPerSecond;
+        double ySpeed = relativeYSpeed * AutoSwerveConstants.kMaxDriveSpeedMetersPerSecond;
+        double rotationSpeed = relativeRotationSpeed * AutoSwerveConstants.kMaxRotationSpeedRadiansPerSecond;
+        swerveDriveSpeeds(xSpeed, ySpeed, rotationSpeed);
     }
 
     public void swerveDriveAlternative(double ySpeed, double xSpeed, double turnSpeed) {

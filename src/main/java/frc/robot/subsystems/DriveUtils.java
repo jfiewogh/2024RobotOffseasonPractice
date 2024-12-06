@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.TeleopSwerveConstants;
 
 public class DriveUtils {
     public static double angleWheelToMotor(double value) {
@@ -67,7 +68,10 @@ public class DriveUtils {
         return angleRadians;
     }
 
-    public static double convertErrorRadiansToSpeed(double errorRadians) {
-        return normalizeSpeed(errorRadians / Math.PI * SwerveConstants.kRotationP);
+    public static double getAngleMotorSpeed(double wheelErrorRadians, double currentWheelAngleRadians) {
+        double motorErrorRadians = angleWheelToMotor(wheelErrorRadians);
+        double currentMotorAngleRadians = angleWheelToMotor(currentWheelAngleRadians);
+        double desiredMotorAngleRadians = currentMotorAngleRadians + motorErrorRadians;
+        return TeleopSwerveConstants.kRotationController.calculate(motorErrorRadians, desiredMotorAngleRadians);
     }
 }

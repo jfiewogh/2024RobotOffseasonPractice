@@ -68,17 +68,13 @@ public class AutoDriveCommand extends Command {
 
     double xSpeed = DriveUtils.normalizeSpeed(AutoSwerveConstants.kXController.calculate(currentPose.getX(), desiredPose.getX()));
     double ySpeed = DriveUtils.normalizeSpeed(AutoSwerveConstants.kYController.calculate(currentPose.getY(), desiredPose.getY()));
-    double rotationSpeed = angleErrorRadians * AutoSwerveConstants.kThetaP;
+    double rotationSpeed = AutoSwerveConstants.kThetaController.calculate(currentPose.getRotation().getRadians(), desiredPose.getRotation().getRadians());
 
     SmartDashboard.putNumber("X Speed", xSpeed);
     SmartDashboard.putNumber("Y Speed", ySpeed);
     SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
 
-    driveSubsystem.swerveDriveSpeeds(
-      ySpeed * AutoSwerveConstants.kMaxSpeed, 
-      xSpeed * AutoSwerveConstants.kMaxSpeed, 
-      rotationSpeed * AutoSwerveConstants.kMaxRotationSpeed
-    );
+    driveSubsystem.swerveDriveAutoRelativeSpeeds(xSpeed, ySpeed, rotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
