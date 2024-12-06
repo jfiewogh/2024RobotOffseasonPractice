@@ -89,11 +89,11 @@ public class RobotContainer {
 
         return new SequentialCommandGroup(
             // Drive
-            new AutoDriveCommand(driveSubsystem, trajectory),
+            new AutoDriveCommand(driveSubsystem, trajectory)
             // Intake
-            new IntakeDeployCommand(intakeSubsystem, true),
-            new IntakeRollerCommand(intakeSubsystem, 0.3, 0.5),
-            new IntakeDeployCommand(intakeSubsystem, false)
+            // new IntakeDeployCommand(intakeSubsystem, true),
+            // new IntakeRollerCommand(intakeSubsystem, 0.3, 0.5),
+            // new IntakeDeployCommand(intakeSubsystem, false)
         );
     }
 }

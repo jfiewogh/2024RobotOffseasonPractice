@@ -60,13 +60,19 @@ public class AutoDriveCommand extends Command {
     double yError = desiredPose.getY() - currentPose.getY();
     double angleErrorRadians = desiredPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
 
+    SmartDashboard.putNumber("X Error", xError);
+    SmartDashboard.putNumber("Y Error", yError);
+    SmartDashboard.putNumber("Rotation Error", angleErrorRadians);
+
     double xSpeed = xError * (shuffleboardPID ? xP.getDouble(AutoSwerveConstants.kXP) : AutoSwerveConstants.kXP);
     double ySpeed = yError * (shuffleboardPID ? yP.getDouble(AutoSwerveConstants.kXP) : AutoSwerveConstants.kYP);
     double rotationSpeed = angleErrorRadians * AutoSwerveConstants.kThetaP;
 
-    SmartDashboard.putNumber("Desired X", desiredPose.getX());
+    SmartDashboard.putNumber("X Speed", xSpeed);
+    SmartDashboard.putNumber("Y Speed", ySpeed);
+    SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
 
-    driveSubsystem.swerveDriveSpeeds(xSpeed, ySpeed, rotationSpeed);
+    driveSubsystem.swerveDriveRelativeSpeeds(ySpeed, xSpeed, rotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
@@ -78,6 +84,7 @@ public class AutoDriveCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(trajectory.getTotalTimeSeconds());
+    return false;
+    // return timer.hasElapsed(trajectory.getTotalTimeSeconds());
   }
 }

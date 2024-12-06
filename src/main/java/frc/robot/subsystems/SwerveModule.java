@@ -50,7 +50,7 @@ public class SwerveModule {
      * @param state the desired speed and angle
      */
     public void setState(SwerveModuleState state) {
-        double driveMotorSpeed = state.speedMetersPerSecond / SwerveConstants.kMaxSpeedMetersPerSecond;
+        double driveMotorSpeed = state.speedMetersPerSecond / SwerveConstants.kCompleteMaxSpeed;
         // Get and Optimize Error
         double currentWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()));
         double desiredWheelAngleRadians = DriveUtils.normalizeAngleRadiansSigned(state.angle.getRadians());
