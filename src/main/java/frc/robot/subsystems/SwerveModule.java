@@ -134,27 +134,5 @@ public class SwerveModule {
             Rotation2d.fromRadians(DriveUtils.angleMotorToWheel(angleMotor.getPositionRadians()))
         );
     }
-
-    double sumRelative = 0;
-    double sumAbsolute = 0;
-
-    double count = 1;
-
-    double lastRelative = 0;
-    double lastAbsolute = 0;
-
-    public void printPositionSlope() {
-        double currentRelative = DriveUtils.angleMotorToWheel(angleMotor.getPositionRotations());
-        System.out.println(currentRelative - lastRelative + " " + sumRelative/count);
-        double currentAbsolute = wheelAngleAbsoluteEncoder.getPositionRotations();
-        System.out.println(currentAbsolute - lastAbsolute + " " + sumAbsolute/count);
-
-        sumRelative += currentRelative - lastRelative;
-        sumAbsolute += currentAbsolute - lastAbsolute;
-        count++;
-
-        lastRelative = currentRelative;
-        lastAbsolute = currentAbsolute;
-    }
 }
 
